@@ -149,14 +149,14 @@ begin
     process(clk)
     begin
         if rising_edge(clk) then
-            I_val_output_reg     <= I_val_pipeline_out(N -1);
+            I_val_output_reg     <= I_val_pipeline_out(N -1) when registers_neg_cos(N -1) = '0'
+                                    else -I_val_pipeline_out(N -1);
             Q_val_output_reg     <= Q_val_pipeline_out(N -1);
             out_valid_output_reg <= registers_out_valid(N -1);
         end if;
     end process;
 
-    I_val     <= std_logic_vector(I_val_output_reg) when registers_neg_cos(N -1) = '0'
-                 else std_logic_vector(-I_val_output_reg);
+    I_val     <= std_logic_vector(I_val_output_reg);
     Q_val     <= std_logic_vector(Q_val_output_reg);
     out_valid <= out_valid_output_reg;
 
