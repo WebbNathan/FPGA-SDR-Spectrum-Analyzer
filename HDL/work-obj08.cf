@@ -1,0 +1,21 @@
+v 4
+file . "tb/nco_tb.vhd" "3e916e650ce8850e2682b67b618f7dfa2f1e94a6" "20260804064533.264":
+  entity nco_tb at 1( 0) + 0 on 76;
+  architecture sim of nco_tb at 8( 107) + 0 on 77;
+file . "tb/phase_accu_tb.vhd" "511d3140fc1cc1c39747d4cbfd6c4bdcd8770973" "20260804062357.185":
+  entity phase_accu_tb at 1( 0) + 0 on 65;
+  architecture sim of phase_accu_tb at 8( 121) + 0 on 66;
+file . "rtl/phase_accu.vhd" "3e99f1e7f84c129f6809fbbbe0630fa01b14d2d0" "20260804062357.184":
+  entity phase_accu at 1( 0) + 0 on 63;
+  architecture rtl of phase_accu at 22( 484) + 0 on 64;
+file . "tb/cordic_pipeline_tb.vhd" "28349632a079d9f2a72e46d609569c3301c9a4e6" "20260804063346.377":
+  entity cordic_pipeline_tb at 1( 0) + 0 on 70;
+  architecture sim of cordic_pipeline_tb at 8( 131) + 0 on 71;
+file . "rtl/cordic_pipeline.vhd" "f7e7bba023e26a9ac4db87d111b167c535ca175b" "20260804063346.365":
+  entity cordic_pipeline at 1( 0) + 0 on 68;
+  architecture rtl of cordic_pipeline at 34( 1087) + 0 on 69;
+file . "rtl/cordic_constants.vhd" "51716ba2c16a1983baf186159f104005bc252f48" "20260804063346.355":
+  package cordic_constants at 1( 0) + 0 on 67;
+file . "rtl/nco.vhd" "d379229c69f65ceb2f6b5094e9eaf79df0801d35" "20260804064533.263":
+  entity nco at 1( 0) + 0 on 74;
+  architecture rtl of nco at 25( 587) + 0 on 75;
