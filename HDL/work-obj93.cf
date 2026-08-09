@@ -1,7 +1,0 @@
-v 4
-file . "tb/phase_accu_tb.vhd" "95eb49864193bd868dc66820891fb3f3ce6ad9c7" "20260727064120.930":
-  entity phase_accu_tb at 1( 0) + 0 on 21;
-  architecture sim of phase_accu_tb at 8( 121) + 0 on 22;
-file . "rtl/phase_accu.vhd" "d3524ba89a927ce2cdf993a83813360376397f9d" "20260727064120.929":
-  entity phase_accu at 1( 0) + 0 on 19;
-  architecture rtl of phase_accu at 18( 378) + 0 on 20;

@@ -2,12 +2,14 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+use std.textio.all;
+
 entity phase_accu_tb is
 end entity phase_accu_tb;
 
 architecture sim of phase_accu_tb is
 
-    constant CLK_PERIOD   : time    := 10 ns;
+    constant CLK_PERIOD   : time    := 400 ns; --2.5MHz
     constant ACCU_WIDTH   : integer := 16;
 
     signal clk            : std_logic := '0';
@@ -19,6 +21,7 @@ architecture sim of phase_accu_tb is
     signal in_valid       : std_logic;
     signal out_valid      : std_logic;
 
+    file output_file      : text open write_mode is "sim/phase_accu_out.txt";    
 begin
 
     -- Device under test
@@ -52,7 +55,7 @@ begin
     begin
 
         -- Hold reset active
-        phase_incr <= std_logic_vector(to_signed(5243, 16)); -- ~10MHz
+        phase_incr <= std_logic_vector(to_signed(2621, 16)); -- ~100kHz
         reset      <= '1';
         in_valid   <= '1';
         wait for 2 * CLK_PERIOD;
@@ -63,6 +66,22 @@ begin
 
         wait;
 
+    end process;
+
+    output_proc : process(clk)
+        variable output_line : line;
+    begin
+        if rising_edge(clk) then
+
+            if out_valid = '1' then
+
+                write(output_line, to_integer(signed(phase_accu_out)));
+
+                writeline(output_file, output_line);
+
+            end if;
+
+        end if;
     end process;
 
 end architecture sim;

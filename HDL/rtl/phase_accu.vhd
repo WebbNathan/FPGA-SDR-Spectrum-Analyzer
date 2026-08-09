@@ -34,6 +34,8 @@ begin
                 phase_incr_reg <= signed(phase_incr);
                 accu           <= accu + phase_incr_reg;
                 out_valid      <= '1';
+            else
+                out_valid      <= '0';
             end if;
         end if;
 

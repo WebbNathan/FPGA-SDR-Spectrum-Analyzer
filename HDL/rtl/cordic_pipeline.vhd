@@ -32,8 +32,8 @@ entity cordic_pipeline is
 end cordic_pipeline;
 
 architecture rtl of cordic_pipeline is
-    type signed_arr_ANGLE_WIDTH_bit is array (natural range <>) of
-        signed(ANGLE_WIDTH -1 downto 0);
+    type signed_arr_ANGLE_WIDTH_bit is array (natural range <>) of 
+        signed(ANGLE_WIDTH +1 downto 0); -- Size +2 for headroom
     
     type logic_arr is array (natural range <>) of
         std_logic;
@@ -52,21 +52,23 @@ architecture rtl of cordic_pipeline is
     signal angle_pi_norm_corrected      : signed(ANGLE_WIDTH -1 downto 0); -- Angle wrapped into correct quadrant
 
     -- Pipeline Outputs
-    signal I_val_pipeline_out           : signed_arr_ANGLE_WIDTH_bit(0 to N -1);
-    signal Q_val_pipeline_out           : signed_arr_ANGLE_WIDTH_bit(0 to N -1);
-    signal angle_err_pipeline_out       : signed_arr_ANGLE_WIDTH_bit(0 to N -1);
+    signal I_val_pipeline_out           : signed_arr_ANGLE_WIDTH_bit(0 to N -1); 
+    signal Q_val_pipeline_out           : signed_arr_ANGLE_WIDTH_bit(0 to N -1); 
+    signal angle_err_pipeline_out       : signed_arr_ANGLE_WIDTH_bit(0 to N -1); 
     
     -- Pipeline Registers
-    signal registers_cordic_angle       : signed_arr_ANGLE_WIDTH_bit(0 to N -1);
-    signal registers_angle_err          : signed_arr_ANGLE_WIDTH_bit(0 to N -1);
-    signal registers_I_vals             : signed_arr_ANGLE_WIDTH_bit(0 to N -1);
-    signal registers_Q_vals             : signed_arr_ANGLE_WIDTH_bit(0 to N -1);
+    signal registers_cordic_angle       : signed_arr_ANGLE_WIDTH_bit(0 to N -1); 
+    signal registers_angle_err          : signed_arr_ANGLE_WIDTH_bit(0 to N -1); 
+    signal registers_I_vals             : signed_arr_ANGLE_WIDTH_bit(0 to N -1); 
+    signal registers_Q_vals             : signed_arr_ANGLE_WIDTH_bit(0 to N -1); 
     signal registers_neg_cos            : logic_arr(0 to N -1);
     signal registers_out_valid          : logic_arr(0 to N -1);
 
     -- Pipeline Out Registers
-    signal I_val_output_reg             : signed(ANGLE_WIDTH -1 downto 0);
-    signal Q_val_output_reg             : signed(ANGLE_WIDTH -1 downto 0);
+    signal I_val_output_reg             : signed(ANGLE_WIDTH +1 downto 0);
+    signal Q_val_output_reg             : signed(ANGLE_WIDTH +1 downto 0);
+    signal I_val_output_reg_satu        : signed(ANGLE_WIDTH -1 downto 0); -- For saturating values to the fixed point format
+    signal Q_val_output_reg_satu        : signed(ANGLE_WIDTH -1 downto 0);
     signal out_valid_output_reg         : std_logic;
 begin
 
@@ -99,7 +101,7 @@ begin
         begin
             if rising_edge(clk) then
                 if reset = '1' then -- If module is reset
-                    registers_cordic_angle(i) <= CORDIC_ANGLES(i);
+                    registers_cordic_angle(i) <= resize(CORDIC_ANGLES(i), registers_cordic_angle(i)'length);
                     registers_angle_err(i)    <= (others => '0');
                     registers_I_vals(i)       <= (others => '0');
                     registers_Q_vals(i)       <= (others => '0');
@@ -114,7 +116,7 @@ begin
                             registers_neg_cos(i)   <= '0';
                             registers_out_valid(i) <= '0';
                         else
-                            registers_angle_err(i) <= angle_pi_norm_corrected; -- Initial corrected angle
+                            registers_angle_err(i) <= resize(angle_pi_norm_corrected, registers_angle_err(i)'length); -- Initial corrected angle
                             registers_I_vals(i)    <= to_signed(K_INV, registers_I_vals(i)'length); -- Initial I val
                             registers_Q_vals(i)    <= (others => '0'); -- Initial Q val
                             registers_neg_cos(i)   <= neg_cos;
@@ -156,8 +158,16 @@ begin
         end if;
     end process;
 
-    I_val     <= std_logic_vector(I_val_output_reg);
-    Q_val     <= std_logic_vector(Q_val_output_reg);
+    I_val_output_reg_satu <= to_signed(32767, ANGLE_WIDTH) when I_val_output_reg > 32767 else
+                             to_signed(-32768, ANGLE_WIDTH) when I_val_output_reg < -32768 else
+                             resize(I_val_output_reg, ANGLE_WIDTH);
+
+    Q_val_output_reg_satu <= to_signed(32767, ANGLE_WIDTH) when Q_val_output_reg > 32767 else
+                             to_signed(-32768, ANGLE_WIDTH) when Q_val_output_reg < -32768 else
+                             resize(Q_val_output_reg, ANGLE_WIDTH);       
+
+    I_val     <= std_logic_vector(I_val_output_reg_satu);
+    Q_val     <= std_logic_vector(Q_val_output_reg_satu);
     out_valid <= out_valid_output_reg;
 
 
