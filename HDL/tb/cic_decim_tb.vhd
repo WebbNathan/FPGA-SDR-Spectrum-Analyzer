@@ -14,7 +14,6 @@ architecture sim of cic_decim_tb is
     constant OUT_WIDTH        : integer := 16;
     constant N                : integer := 2;
     constant R                : integer := 64;
-    constant M                : integer := 1;
 
     signal clk                : std_logic := '0';
     signal reset              : std_logic := '0';
@@ -37,7 +36,6 @@ begin
         generic map (
             N         => N,
             R         => R,
-            M         => M,
             IN_WIDTH  => IN_WIDTH,
             OUT_WIDTH => OUT_WIDTH
         )
@@ -99,7 +97,7 @@ begin
     begin
         if rising_edge(clk) then
 
-            if out_valid = '1' then
+            if(slow_clk) = '1' and out_valid = '1' then
 
                 write(output_line, to_integer(signed(signal_out)));
 

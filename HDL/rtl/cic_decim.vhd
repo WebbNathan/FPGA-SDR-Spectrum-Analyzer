@@ -9,7 +9,6 @@ entity cic_decim is
     generic(
         N         : integer := 2;
         R         : integer := 64;
-        M         : integer := 1;
         IN_WIDTH  : integer := 16;
         OUT_WIDTH : integer := 16 
     );
@@ -28,8 +27,9 @@ entity cic_decim is
 end cic_decim;
 
 architecture rtl of cic_decim is
-    constant R_WIDTH   : natural := clog2(R * M);
-    constant CIC_WIDTH : natural := IN_WIDTH + N * clog2(R * M); -- Accounts for CIC DC gain of RM^N
+    constant R_WIDTH   : natural := clog2(R);
+    constant BIT_GAIN  : natural := N * clog2(R);
+    constant CIC_WIDTH : natural := IN_WIDTH + BIT_GAIN; -- Accounts for CIC DC gain of RM^N
     
     type signed_arr_CIC_WIDTH_bit is array (natural range <>) of 
         signed(CIC_WIDTH -1 downto 0);
@@ -100,7 +100,7 @@ begin
         end if;
     end process;
 
-    signal_out <= std_logic_vector(resize(shift_right(comb_pipeline_reg(N -1), CIC_WIDTH), OUT_WIDTH));
+    signal_out <= std_logic_vector(resize(shift_right(comb_pipeline_reg(N -1), BIT_GAIN), signal_out'length));
     out_valid  <= out_valid_pipeline_reg(2*N -1); 
 
 end architecture;
