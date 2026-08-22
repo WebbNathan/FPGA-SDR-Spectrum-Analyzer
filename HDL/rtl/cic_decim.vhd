@@ -17,7 +17,7 @@ entity cic_decim is
         reset      : in std_logic;
         signal_in  : in std_logic_vector(IN_WIDTH -1 downto 0);
 
-        slow_clk   : out std_logic; -- Decimated clock
+        slow_clk   : out std_logic; -- Decimated pulse
         signal_out : out std_logic_vector(OUT_WIDTH -1 downto 0);
 
         -- Control Signals
@@ -59,7 +59,7 @@ begin
                     out_valid_pipeline_reg(i + N) <= '0';
                 else
                     if i = 0 then
-                        int_pipeline_reg(i)       <= resize(signed(signal_in), int_pipeline_reg(i)'length)  + int_pipeline_reg(i);
+                        int_pipeline_reg(i)       <= resize(signed(signal_in), int_pipeline_reg(i)'length) + int_pipeline_reg(i);
                         out_valid_pipeline_reg(i) <= in_valid;
 
                         if slow_clk = '1' then
@@ -88,6 +88,7 @@ begin
         if rising_edge(clk) then
             if reset = '1' then
                 clk_slow_cnt_reg <= to_unsigned(0, clk_slow_cnt_reg'length);
+                slow_clk         <= '0';
             else
                 if clk_slow_cnt_reg = to_unsigned(R -1, clk_slow_cnt_reg'length) then
                     slow_clk <= '1';
