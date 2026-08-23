@@ -15,23 +15,23 @@ use work.fir_taps.all;
 
 entity fir_decim_sub is
     generic(
-        DATA_WIDTH                    : integer := 16;
-        NUM_TAPS                      : integer := 31; -- Number of taps seen by branch (TOTAL # TAPS / BRANCH COUNT)
-        TAPS                          : taps_array(0 to NUM_TAPS -1) -- Taps for branch
+        DATA_WIDTH : integer := 16;
+        NUM_TAPS   : integer := 31; -- Number of taps seen by branch (TOTAL # TAPS / BRANCH COUNT)
+        TAPS       : taps_array(0 to NUM_TAPS -1) -- Taps for branch
     );
     port(
-        clk                           : in std_logic;
-        reset                         : in std_logic;
-        signal_in                     : in std_logic_vector(DATA_WIDTH -1 downto 0);
+        clk          : in std_logic;
+        reset        : in std_logic;
+        signal_in    : in std_logic_vector(DATA_WIDTH -1 downto 0);
 
-        signal_out                    : out std_logic_vector(DATA_WIDTH -1 downto 0);
+        signal_out   : out std_logic_vector(DATA_WIDTH -1 downto 0);
 
         -- Control Signals
-        in_valid                      : in std_logic; -- This will be the decimation pulse input
-        out_valid                     : out std_logic;
+        in_valid     : in std_logic; -- This will be the decimation pulse input
+        out_valid    : out std_logic;
 
         -- Error Signals
-        input_before_completion_error : out std_logic -- For catching if a new input is sent while module is still calculating
+        branch_error : out std_logic -- For catching if a new input is sent while module is still calculating
     );
 end entity fir_decim_sub;
 
@@ -46,17 +46,21 @@ architecture rtl of fir_decim_sub is
     type signed_arr_DATA_WIDTH_bit is array (natural range <>) of 
         signed(DATA_WIDTH -1 downto 0);
 
-    signal tap_array_1        : signed_arr_DATA_WIDTH_bit(0 to NUM_TAPS_HALF -1);
-    signal tap_array_2        : signed_arr_DATA_WIDTH_bit(0 to NUM_TAPS_HALF -1);
-
+    -- Delay logic
     signal in_valid_shft_reg  : std_logic := '0'; -- in_valid pipelining
     signal signal_in_shft_reg : signed_arr_DATA_WIDTH_bit(0 to NUM_TAPS_RND -1); 
 
+    -- Split tap arrays
+    signal tap_array_1        : signed_arr_DATA_WIDTH_bit(0 to NUM_TAPS_HALF -1);
+    signal tap_array_2        : signed_arr_DATA_WIDTH_bit(0 to NUM_TAPS_HALF -1);
+
+    -- Indexing and calculation logic
     signal mux_cnt            : unsigned(MUX_CNT_WIDTH -1 downto 0) := (others => '0');
     signal calculating_bool   : std_logic := '0'; -- If 1 then calculation in progress, else 0
     signal curr_offset        : unsigned(CURR_OFF_SIZE -1 downto 0) := (others => '0'); 
 
-    signal accu_1             : signed(DATA_WIDTH + ADDED_WIDTH -1 downto 0) := (others => '0'); -- Likely wrong sizing here
+    -- Accumulator logic
+    signal accu_1             : signed(DATA_WIDTH + ADDED_WIDTH -1 downto 0) := (others => '0');
     signal accu_2             : signed(DATA_WIDTH + ADDED_WIDTH -1 downto 0) := (others => '0');
     signal total_accu_sum     : signed(DATA_WIDTH + ADDED_WIDTH -1 downto 0) := (others => '0');
 begin
@@ -79,63 +83,6 @@ begin
             tap_array_2(i - NUM_TAPS_HALF) <= (others => '0');
         end generate;
     end generate gen_tap_arrays;
-
-    -- Counter logic for multiplexing
-    process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                mux_cnt                       <= (others => '0');
-                input_before_completion_error <= '0';
-            else
-                if in_valid = '1' or 
-                   mux_cnt = to_unsigned(MUX_CNT_MAX, mux_cnt'length) then
-                    mux_cnt <= (others => '0'); -- Reset mux_cnt for new calculation
-                    
-                    if calculating_bool = '1' then -- Error condition
-                        input_before_completion_error <= '1';
-                    else
-                        input_before_completion_error <= '0';
-                    end if;
-                else
-                    mux_cnt <= mux_cnt +1;
-                end if;
-            end if;
-        end if;
-    end process;
-
-    -- Calculating state machine
-    process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                calculating_bool <= '0';
-            else
-                if in_valid_shft_reg = '1' then
-                    calculating_bool <= '1';
-                elsif out_valid = '1' then
-                    calculating_bool <= '0';
-                end if;
-            end if;
-        end if;
-    end process;
-
-    -- Out_valid logic
-    process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                out_valid <= '0';
-            else
-                if mux_cnt = to_unsigned(MUX_CNT_MAX, mux_cnt'length) 
-                   and calculating_bool = '1' then
-                   out_valid <= '1';
-                else
-                    out_valid <= '0';
-                end if;
-            end if;
-        end if;
-    end process;
 
     -- Shift register logic
     gen_shft_reg : for i in 0 to NUM_TAPS_RND -1 generate
@@ -161,6 +108,56 @@ begin
             end if;
         end process;
     end generate gen_shft_reg;
+
+    -- Counter logic for multiplexing
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if reset = '1' then
+                mux_cnt      <= (others => '0');
+            else
+                if in_valid = '1' or 
+                   mux_cnt = to_unsigned(MUX_CNT_MAX, mux_cnt'length) then
+                    mux_cnt <= (others => '0'); -- Reset mux_cnt for new calculation
+                else
+                    mux_cnt <= mux_cnt +1;
+                end if;
+            end if;
+        end if;
+    end process;
+
+    -- Calculating state machine
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if reset = '1' then
+                calculating_bool <= '0';
+            else
+                if in_valid_shft_reg = '1' then
+                    calculating_bool <= '1';
+                elsif mux_cnt = to_unsigned(MUX_CNT_MAX, mux_cnt'length) then
+                    calculating_bool <= '0';
+                end if;
+            end if;
+        end if;
+    end process;
+
+    -- Error condition check
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if reset = '1' then
+                branch_error <= '0';
+            else
+                if calculating_bool = '1' and
+                   in_valid_shft_reg = '1' then -- Error condition
+                    branch_error <= '1';
+                else
+                    branch_error <= '0';
+                end if;
+            end if;
+        end if;
+    end process;
 
     -- Multipliyer and accumulator logic
     process(clk)
@@ -211,14 +208,31 @@ begin
         end if;
     end process;
 
+    -- Out_valid logic
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if reset = '1' then
+                out_valid <= '0';
+            else
+                if mux_cnt = to_unsigned(MUX_CNT_MAX, mux_cnt'length) 
+                   and calculating_bool = '1' then
+                   out_valid <= '1';
+                else
+                    out_valid <= '0';
+                end if;
+            end if;
+        end if;
+    end process;
+
     curr_offset    <= resize(mux_cnt, curr_offset'length) + to_unsigned(NUM_TAPS_HALF, curr_offset'length);
     total_accu_sum <= accu_1 + accu_2;
 
     -- Signal out with saturation logic
-    signal_out     <= std_logic_vector(to_signed(32767, DATA_WIDTH)) 
-                      when total_accu_sum > to_signed(32767, DATA_WIDTH) else
-                      std_logic_vector(to_signed(-32768, DATA_WIDTH)) 
-                      when total_accu_sum < -to_signed(-32768, DATA_WIDTH) else
-                      std_logic_vector(resize(total_accu_sum, DATA_WIDTH));
+    signal_out     <= std_logic_vector(to_signed(32767, signal_out'length)) 
+                      when total_accu_sum > to_signed(32767, total_accu_sum'length) else
+                      std_logic_vector(to_signed(-32768, signal_out'length)) 
+                      when total_accu_sum < to_signed(-32768, total_accu_sum'length) else
+                      std_logic_vector(resize(total_accu_sum, signal_out'length));
 
 end architecture;

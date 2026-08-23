@@ -1,0 +1,35 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Sun Aug 23 03:49:32 2026
+[*]
+[dumpfile] "/home/webbn/githubRepos/FPGA-SDR-Spectrum-Analyzer/HDL/waveform.ghw"
+[dumpfile_mtime] "Sun Aug 23 03:45:23 2026"
+[dumpfile_size] 2253419
+[savefile] "/home/webbn/githubRepos/FPGA-SDR-Spectrum-Analyzer/HDL/fir_decim_sig.gtkw"
+[timestart] 0
+[size] 1440 810
+[pos] -355 13
+*-25.000000 94100000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.fir_decim_tb.
+[treeopen] top.fir_decim_tb.dut.
+[treeopen] top.fir_decim_tb.dut.gen_branches[0].
+[treeopen] top.fir_decim_tb.dut.gen_branches[0].first_branch.
+[treeopen] top.fir_decim_tb.dut.gen_branches[0].first_branch.branch_i.
+[sst_width] 237
+[signals_width] 142
+[sst_expanded] 1
+[sst_vpaned_height] 231
+@28
+top.fir_decim_tb.clk
+top.fir_decim_tb.reset
+top.fir_decim_tb.in_valid
+top.fir_decim_tb.out_valid
+top.fir_decim_tb.dut.decim_pulse
+top.fir_decim_tb.dut.calculating_bool
+top.fir_decim_tb.dut.branch_error
+@420
+#{top.fir_decim_tb.signal_in[15:0]} top.fir_decim_tb.signal_in[15] top.fir_decim_tb.signal_in[14] top.fir_decim_tb.signal_in[13] top.fir_decim_tb.signal_in[12] top.fir_decim_tb.signal_in[11] top.fir_decim_tb.signal_in[10] top.fir_decim_tb.signal_in[9] top.fir_decim_tb.signal_in[8] top.fir_decim_tb.signal_in[7] top.fir_decim_tb.signal_in[6] top.fir_decim_tb.signal_in[5] top.fir_decim_tb.signal_in[4] top.fir_decim_tb.signal_in[3] top.fir_decim_tb.signal_in[2] top.fir_decim_tb.signal_in[1] top.fir_decim_tb.signal_in[0]
+#{top.fir_decim_tb.signal_out[15:0]} top.fir_decim_tb.signal_out[15] top.fir_decim_tb.signal_out[14] top.fir_decim_tb.signal_out[13] top.fir_decim_tb.signal_out[12] top.fir_decim_tb.signal_out[11] top.fir_decim_tb.signal_out[10] top.fir_decim_tb.signal_out[9] top.fir_decim_tb.signal_out[8] top.fir_decim_tb.signal_out[7] top.fir_decim_tb.signal_out[6] top.fir_decim_tb.signal_out[5] top.fir_decim_tb.signal_out[4] top.fir_decim_tb.signal_out[3] top.fir_decim_tb.signal_out[2] top.fir_decim_tb.signal_out[1] top.fir_decim_tb.signal_out[0]
+[pattern_trace] 1
+[pattern_trace] 0

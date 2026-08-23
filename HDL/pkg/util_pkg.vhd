@@ -21,7 +21,11 @@ package body util_pkg is
             result := result + 1;
         end loop;
 
-        return result;
+        if result > 0 then
+            return result;
+        else
+            return 1;
+        end if;
     end function;
 
 end package body;
