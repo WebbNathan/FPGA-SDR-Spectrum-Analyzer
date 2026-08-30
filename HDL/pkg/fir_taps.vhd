@@ -8,6 +8,15 @@ use std.textio.all;
 package fir_taps is
 
     type taps_array is array (natural range <>) of signed(15 downto 0);
+    constant NUM_TAPS : integer := 31;
+
+    constant FIR_MOD_1_TAPS : taps_array(0 to NUM_TAPS -1) := (
+
+    );
+
+    constant FIR_MOD_2_TAPS : taps_array(0 to NUM_TAPS -1) := (
+
+    );
 
     function create_sub_tap_array(
         NUM_TAPS   : integer;

@@ -8,28 +8,30 @@ use work.util_pkg.all;
 entity cic_decim is
     generic(
         N         : integer := 2;
-        R         : integer := 64;
+        R_MAX     : integer := 64;
         IN_WIDTH  : integer := 16;
         OUT_WIDTH : integer := 16 
     );
     port(
-        clk        : in std_logic;
-        reset      : in std_logic;
-        signal_in  : in std_logic_vector(IN_WIDTH -1 downto 0);
+        clk          : in std_logic;
+        reset        : in std_logic;
+        signal_in    : in std_logic_vector(IN_WIDTH -1 downto 0);
+        decim_factor : in std_logic_vector(clog2(R_MAX) -1 downto 0);
+        gain_shift   : in std_logic_vector(clog2(clog2(R_MAX +1)) -1 downto 0);
 
-        slow_clk   : out std_logic; -- Decimated pulse
-        signal_out : out std_logic_vector(OUT_WIDTH -1 downto 0);
+        signal_out   : out std_logic_vector(OUT_WIDTH -1 downto 0);
 
         -- Control Signals
-        in_valid   : in std_logic;
-        out_valid  : out std_logic
+        in_valid     : in std_logic;
+        out_valid    : out std_logic
     );
 end cic_decim;
 
 architecture rtl of cic_decim is
-    constant R_WIDTH   : natural := clog2(R);
-    constant BIT_GAIN  : natural := N * clog2(R);
-    constant CIC_WIDTH : natural := IN_WIDTH + BIT_GAIN; -- Accounts for CIC DC gain of RM^N
+    constant R_WIDTH       : natural := clog2(R_MAX);
+    constant MAX_BIT_GAIN  : natural := N * clog2(R_MAX);
+    constant CIC_WIDTH     : natural := IN_WIDTH + MAX_BIT_GAIN; -- Accounts for CIC DC gain of RM^N
+    constant R_SHIFT_WIDTH : natural := clog2(R_WIDTH +1); -- Plus one as R_SHIFT must allow value from 0 to MAX_R_SHIFT (MAX_R_SHIFT +1 values)
     
     type signed_arr_CIC_WIDTH_bit is array (natural range <>) of 
         signed(CIC_WIDTH -1 downto 0);
@@ -38,6 +40,7 @@ architecture rtl of cic_decim is
         std_logic;
 
     signal clk_slow_cnt_reg          : unsigned(R_WIDTH -1 downto 0); -- For creating the decimated clock, pulse on overflow
+    signal slow_clk                  : std_logic;
 
     signal int_pipeline_reg          : signed_arr_CIC_WIDTH_bit(0 to N -1);
     signal comb_pipeline_reg         : signed_arr_CIC_WIDTH_bit(0 to N -1);
@@ -90,18 +93,23 @@ begin
                 clk_slow_cnt_reg <= to_unsigned(0, clk_slow_cnt_reg'length);
                 slow_clk         <= '0';
             else
-                if clk_slow_cnt_reg = to_unsigned(R -1, clk_slow_cnt_reg'length) then
+                if clk_slow_cnt_reg = (unsigned(decim_factor) -1) then
                     slow_clk <= '1';
+                    clk_slow_cnt_reg <= to_unsigned(0, clk_slow_cnt_reg'length);
                 else
                     slow_clk <= '0';
+                    clk_slow_cnt_reg <= clk_slow_cnt_reg + 1;
                 end if;
-                
-                clk_slow_cnt_reg <= clk_slow_cnt_reg + 1;
             end if;
         end if;
     end process;
 
-    signal_out <= std_logic_vector(resize(shift_right(comb_pipeline_reg(N -1), BIT_GAIN), signal_out'length));
+    signal_out <= std_logic_vector(resize(
+                                   shift_right(
+                                   comb_pipeline_reg(N -1), 
+                                   to_integer(unsigned(gain_shift))), 
+                                   signal_out'length));
+
     out_valid  <= out_valid_pipeline_reg(2*N -1); 
 
 end architecture;
