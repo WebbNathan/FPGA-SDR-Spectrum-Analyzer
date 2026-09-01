@@ -4,6 +4,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.util_pkg.all;
+use twiddle_factors.all;
 
 entity fft is
     generic(

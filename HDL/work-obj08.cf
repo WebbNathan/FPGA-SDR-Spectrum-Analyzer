@@ -1,40 +1,51 @@
 v 4
-file . "rtl/counter.vhd" "54baaf1218f27068849c4c30becbdec5f561c066" "20260830061924.199":
-  entity counter at 1( 0) + 0 on 494;
-  architecture rtl of counter at 27( 748) + 0 on 495;
-file . "rtl/butterfly.vhd" "f1496cab332ab1539b04873892af49630a8b8ef1" "20260829220343.220":
-  entity butterfly at 1( 0) + 0 on 480;
-  architecture rtl of butterfly at 32( 905) + 0 on 481;
-file . "tb/fir_decim_tb.vhd" "27ffb12399f20c6657c0ed28050a3486d3b24cba" "20260823173905.047":
-  entity fir_decim_tb at 1( 0) + 0 on 468;
-  architecture sim of fir_decim_tb at 12( 186) + 0 on 469;
-file . "rtl/fir_decim.vhd" "a920adfa53be0dd6183bda97040607dcf18668df" "20260823173905.046":
-  entity fir_decim at 1( 0) + 0 on 466;
-  architecture rtl of fir_decim at 34( 798) + 0 on 467;
-file . "tb/fir_decim_sub_tb.vhd" "b0fd61f9397b2184aa430ee6115f23ea87f7558d" "20260822023637.267":
-  entity fir_decim_sub_tb at 1( 0) + 0 on 244;
-  architecture sim of fir_decim_sub_tb at 12( 194) + 0 on 245;
-file . "rtl/fir_decim_sub.vhd" "385922cd6681339864d9522cfdb801ef9a959047" "20260823173905.044":
-  entity fir_decim_sub at 1( 0) + 0 on 464;
-  architecture rtl of fir_decim_sub at 38( 1344) + 0 on 465;
-file . "tb/cic_decim_tb.vhd" "bbe29963216304db0c102aa59e3d2a56b0a2c17f" "20260812032122.454":
-  entity cic_decim_tb at 1( 0) + 0 on 103;
-  architecture sim of cic_decim_tb at 10( 140) + 0 on 104;
-file . "rtl/cic_decim.vhd" "3640dfb2c4cc3f263c5997c27948afd45300c093" "20260823215058.316":
-  entity cic_decim at 1( 0) + 0 on 470;
-  architecture rtl of cic_decim at 30( 781) + 0 on 471;
-file . "pkg/util_pkg.vhd" "dc994d8e12b732346141f000f2092e5fe869e1fd" "20260823040616.093":
-  package util_pkg at 3( 18) + 0 on 420 body;
-  package body util_pkg at 13( 148) + 0 on 421;
-file . "pkg/fir_taps.vhd" "d65d7db5a48417c8bd97d7f664d190f6fd76ffc3" "20260823173905.043":
-  package fir_taps at 1( 0) + 0 on 462 body;
-  package body fir_taps at 26( 576) + 0 on 463;
-file . "rtl/filter_pipeline.vhd" "a2988ad26241cec4facdc6f0f19454e10ce6e73e" "20260823225125.634":
-  entity filter_pipeline at 1( 0) + 0 on 474;
-  architecture rtl of filter_pipeline at 42( 1310) + 0 on 475;
-file . "rtl/ram.vhd" "14de4d747dfbf44cdf0154bb15ed1d0696e978b6" "20260829062822.861":
-  entity ram at 1( 0) + 0 on 476;
-  architecture rtl of ram at 33( 807) + 0 on 477;
+file . "rtl/get_twiddle.vhd" "2fc5dc3c27e08d0ae09fa5c186984ed876bb0237" "20260901021656.685":
+  entity get_twiddle at 1( 0) + 0 on 507;
+  architecture rtl of get_twiddle at 34( 796) + 0 on 508;
+file . "rtl/fft_controller.vhd" "28a4323997dd22a37574c10adf43306f4c07a9c3" "20260831190244.247":
+  entity fft_controller at 1( 0) + 0 on 500;
+  architecture rtl of fft_controller at 40( 1191) + 0 on 501;
+file . "rtl/get_ab.vhd" "bc2abaa3359ca2fcce7d7967b3de7699d9b5194a" "20260901021857.069":
+  entity get_ab at 1( 0) + 0 on 509;
+  architecture rtl of get_ab at 29( 683) + 0 on 510;
 file . "tb/counter_tb.vhd" "b8f75ccc6d0ea6600b07c0278280359ab213d219" "20260830061318.255":
   entity counter_tb at 1( 0) + 0 on 492;
   architecture sim of counter_tb at 11( 153) + 0 on 493;
+file . "rtl/ram.vhd" "5228f11fd5963ce1e8386316119727b47d409cb4" "20260831182133.522":
+  entity ram at 1( 0) + 0 on 498;
+  architecture rtl of ram at 36( 969) + 0 on 499;
+file . "rtl/filter_pipeline.vhd" "a2988ad26241cec4facdc6f0f19454e10ce6e73e" "20260823225125.634":
+  entity filter_pipeline at 1( 0) + 0 on 474;
+  architecture rtl of filter_pipeline at 42( 1310) + 0 on 475;
+file . "pkg/fir_taps.vhd" "d65d7db5a48417c8bd97d7f664d190f6fd76ffc3" "20260823173905.043":
+  package fir_taps at 1( 0) + 0 on 462 body;
+  package body fir_taps at 26( 576) + 0 on 463;
+file . "pkg/util_pkg.vhd" "dc994d8e12b732346141f000f2092e5fe869e1fd" "20260823040616.093":
+  package util_pkg at 3( 18) + 0 on 420 body;
+  package body util_pkg at 13( 148) + 0 on 421;
+file . "rtl/cic_decim.vhd" "3640dfb2c4cc3f263c5997c27948afd45300c093" "20260823215058.316":
+  entity cic_decim at 1( 0) + 0 on 470;
+  architecture rtl of cic_decim at 30( 781) + 0 on 471;
+file . "tb/cic_decim_tb.vhd" "bbe29963216304db0c102aa59e3d2a56b0a2c17f" "20260812032122.454":
+  entity cic_decim_tb at 1( 0) + 0 on 103;
+  architecture sim of cic_decim_tb at 10( 140) + 0 on 104;
+file . "rtl/fir_decim_sub.vhd" "385922cd6681339864d9522cfdb801ef9a959047" "20260823173905.044":
+  entity fir_decim_sub at 1( 0) + 0 on 464;
+  architecture rtl of fir_decim_sub at 38( 1344) + 0 on 465;
+file . "tb/fir_decim_sub_tb.vhd" "b0fd61f9397b2184aa430ee6115f23ea87f7558d" "20260822023637.267":
+  entity fir_decim_sub_tb at 1( 0) + 0 on 244;
+  architecture sim of fir_decim_sub_tb at 12( 194) + 0 on 245;
+file . "rtl/fir_decim.vhd" "a920adfa53be0dd6183bda97040607dcf18668df" "20260823173905.046":
+  entity fir_decim at 1( 0) + 0 on 466;
+  architecture rtl of fir_decim at 34( 798) + 0 on 467;
+file . "tb/fir_decim_tb.vhd" "27ffb12399f20c6657c0ed28050a3486d3b24cba" "20260823173905.047":
+  entity fir_decim_tb at 1( 0) + 0 on 468;
+  architecture sim of fir_decim_tb at 12( 186) + 0 on 469;
+file . "rtl/butterfly.vhd" "f1496cab332ab1539b04873892af49630a8b8ef1" "20260829220343.220":
+  entity butterfly at 1( 0) + 0 on 480;
+  architecture rtl of butterfly at 32( 905) + 0 on 481;
+file . "rtl/counter.vhd" "54baaf1218f27068849c4c30becbdec5f561c066" "20260830061924.199":
+  entity counter at 1( 0) + 0 on 494;
+  architecture rtl of counter at 27( 748) + 0 on 495;
+file . "pkg/twiddle_factors.vhd" "3adc6d2b12ea6464b7fb269425a7787293d68bf8" "20260901013401.655":
+  package twiddle_factors at 1( 0) + 0 on 504;

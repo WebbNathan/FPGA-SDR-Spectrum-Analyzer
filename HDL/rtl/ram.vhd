@@ -13,20 +13,23 @@ entity ram is
         WORD_CNT  : integer := 1024
     );
     port(
-        clk      : in std_logic;
-        reset    : in std_logic;
+        clk        : in std_logic;
+        reset      : in std_logic;
 
-        write_en : in std_logic;
-        read_en  : in std_logic;
+        write_en   : in std_logic;
+        read_en    : in std_logic;
 
-        addr_0   : in std_logic_vector(clog2(WORD_CNT) -1 downto 0);
-        addr_1   : in std_logic_vector(clog2(WORD_CNT) -1 downto 0);
+        addr_0     : in std_logic_vector(clog2(WORD_CNT) -1 downto 0);
+        addr_1     : in std_logic_vector(clog2(WORD_CNT) -1 downto 0);
 
-        in_0     : in std_logic_vector(WORD_SIZE -1 downto 0);
-        in_1     : in std_logic_vector(WORD_SIZE -1 downto 0);
+        in_0       : in std_logic_vector(WORD_SIZE -1 downto 0);
+        in_1       : in std_logic_vector(WORD_SIZE -1 downto 0);
 
-        out_0    : out std_logic_vector(WORD_SIZE -1 downto 0);
-        out_1    : out std_logic_vector(WORD_SIZE -1 downto 0)
+        out_0      : out std_logic_vector(WORD_SIZE -1 downto 0);
+        out_1      : out std_logic_vector(WORD_SIZE -1 downto 0);
+
+        read_done  : out std_logic;
+        write_done : out std_logic 
     );
 end ram;
 
@@ -46,11 +49,17 @@ begin
                 if write_en = '1' then
                     mem(to_integer(unsigned(addr_0))) <= in_0;
                     mem(to_integer(unsigned(addr_1))) <= in_1;
+                    write_done                        <= '1';
+                else
+                    write_done <= '0';
                 end if;
 
                 if read_en = '1' then
-                    out_0 <= mem(to_integer(unsigned(addr_0)));
-                    out_1 <= mem(to_integer(unsigned(addr_1)));
+                    out_0     <= mem(to_integer(unsigned(addr_0)));
+                    out_1     <= mem(to_integer(unsigned(addr_1)));
+                    read_done <= '1';
+                else
+                    read_done <= '0';
                 end if;
             end if;
         end if;
