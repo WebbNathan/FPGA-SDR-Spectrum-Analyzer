@@ -1,4 +1,7 @@
 v 4
+file . "rtl/fft_output_controller.vhd" "77838505f284e5a23962f258a77e8c96293a2a0d" "20260903054903.939":
+  entity fft_output_controller at 1( 0) + 0 on 513;
+  architecture rtl of fft_output_controller at 30( 791) + 0 on 514;
 file . "rtl/get_twiddle.vhd" "2fc5dc3c27e08d0ae09fa5c186984ed876bb0237" "20260901021656.685":
   entity get_twiddle at 1( 0) + 0 on 507;
   architecture rtl of get_twiddle at 34( 796) + 0 on 508;
@@ -49,3 +52,6 @@ file . "rtl/counter.vhd" "54baaf1218f27068849c4c30becbdec5f561c066" "20260830061
   architecture rtl of counter at 27( 748) + 0 on 495;
 file . "pkg/twiddle_factors.vhd" "3adc6d2b12ea6464b7fb269425a7787293d68bf8" "20260901013401.655":
   package twiddle_factors at 1( 0) + 0 on 504;
+file . "rtl/fft_input_controller.vhd" "5cd58a1182bf6acac9503c8292d330e025066866" "20260903043019.459":
+  entity fft_input_controller at 1( 0) + 0 on 511;
+  architecture rtl of fft_input_controller at 31( 862) + 0 on 512;
