@@ -1,6 +1,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.std_logic_textio.all;
+
+use std.textio.all;
 
 library work;
 use work.util_pkg.all;
@@ -29,7 +32,9 @@ entity ram is
         out_1      : out std_logic_vector(WORD_SIZE -1 downto 0);
 
         read_done  : out std_logic;
-        write_done : out std_logic 
+        write_done : out std_logic; 
+
+        one_input  : in std_logic -- For specifying whether only one input port is used (1 if yes)
     );
 end ram;
 
@@ -37,18 +42,35 @@ architecture rtl of ram is
     type mem_t is array (0 to WORD_CNT-1)
         of std_logic_vector(WORD_SIZE-1 downto 0);
 
-    signal mem : mem_t;
+    impure function init_ram(filename : string) return mem_t is
+        file input_file : text open read_mode is filename;
+        variable row    : line;
+        variable memory : mem_t := (others => (others => '0'));
+        variable idx    : natural := 0;
+    begin
+        while not endfile(input_file) and idx < WORD_CNT loop
+            readline(input_file, row);
+            hread(row, memory(idx));
+            idx := idx + 1;
+        end loop;
+
+        return memory;
+    end function;
+
+    signal mem : mem_t := init_ram("pkg/fft_input.hex");
 begin
 
     process(clk) 
     begin
         if rising_edge(clk) then
             if reset = '1' then
-                mem <= (others => (others => '0'));
+                --mem <= (others => (others => '0'));
             else
                 if write_en = '1' then
                     mem(to_integer(unsigned(addr_0))) <= in_0;
-                    mem(to_integer(unsigned(addr_1))) <= in_1;
+                    if one_input = '0' then
+                        mem(to_integer(unsigned(addr_1))) <= in_1;
+                    end if;
                     write_done                        <= '1';
                 else
                     write_done <= '0';
@@ -56,7 +78,9 @@ begin
 
                 if read_en = '1' then
                     out_0     <= mem(to_integer(unsigned(addr_0)));
-                    out_1     <= mem(to_integer(unsigned(addr_1)));
+                    if one_input = '0' then
+                        out_1     <= mem(to_integer(unsigned(addr_1)));
+                    end if;
                     read_done <= '1';
                 else
                     read_done <= '0';
@@ -64,5 +88,23 @@ begin
             end if;
         end if;
     end process;
+
+    dump_proc : process
+        file output_file : text open write_mode is "sim/fft_output.hex";
+        variable row : line;
+    begin
+        wait for 2 ms;  -- After the FFT finishes.
+        wait until falling_edge(clk);
+
+        for idx in mem'range loop
+            hwrite(row, mem(idx));
+            writeline(output_file, row);
+        end loop;
+
+        file_close(output_file);
+        report "RAM dumped to fft_output.hex";
+        wait;
+    end process;
+    -- synthesis translate_on
 
 end architecture;

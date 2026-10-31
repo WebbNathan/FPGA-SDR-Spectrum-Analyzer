@@ -71,37 +71,42 @@ begin
                 out_b_imag <= resize(data_a_imag, out_b_imag'length)
                               - resize(shift_right(data_b_imag * twiddle_real, FRAC_BITS), out_b_imag'length)
                               - resize(shift_right(data_b_real * twiddle_imag, FRAC_BITS), out_b_imag'length);
+
+                out_valid <= '1';
             end if;
         end if;
     end process;
 
-    data_a_real <= signed(data_a(DATA_WIDTH -1 downto DATA_HALF));
-    data_a_imag <= signed(data_a(DATA_HALF -1 downto 0));
-    data_b_real <= signed(data_b(DATA_WIDTH -1 downto DATA_HALF));
-    data_b_imag <= signed(data_b(DATA_HALF -1 downto 0));
+    data_a_real  <= signed(data_a(DATA_WIDTH -1 downto DATA_HALF));
+    data_a_imag  <= signed(data_a(DATA_HALF -1 downto 0));
+    data_b_real  <= signed(data_b(DATA_WIDTH -1 downto DATA_HALF));
+    data_b_imag  <= signed(data_b(DATA_HALF -1 downto 0));
+
+    twiddle_real <= signed(twiddle(DATA_WIDTH -1 downto DATA_HALF));
+    twiddle_imag <= signed(twiddle(DATA_HALF -1 downto 0));
 
     out_a(DATA_WIDTH -1 downto DATA_HALF) <= std_logic_vector(to_signed(SATU_UP_LIM, DATA_HALF)) 
-                                             when out_a_real > to_signed(SATU_UP_LIM, out_a_real'length) else
+                                             when shift_right(out_a_real, 1) > to_signed(SATU_UP_LIM, out_a_real'length) else
                                              std_logic_vector(to_signed(SATU_LOW_LIM, DATA_HALF)) 
-                                             when out_a_real < to_signed(SATU_LOW_LIM, out_a_real'length) else
-                                             std_logic_vector(resize(out_a_real, DATA_HALF));
+                                             when shift_right(out_a_real, 1) < to_signed(SATU_LOW_LIM, out_a_real'length) else
+                                             std_logic_vector(resize(shift_right(out_a_real, 1), DATA_HALF));
     
     out_a(DATA_HALF -1 downto 0)          <= std_logic_vector(to_signed(SATU_UP_LIM, DATA_HALF)) 
-                                             when out_a_imag > to_signed(SATU_UP_LIM, out_a_imag'length) else
+                                             when shift_right(out_a_imag, 1) > to_signed(SATU_UP_LIM, out_a_imag'length) else
                                              std_logic_vector(to_signed(SATU_LOW_LIM, DATA_HALF)) 
-                                             when out_a_imag < to_signed(SATU_LOW_LIM, out_a_imag'length) else
-                                             std_logic_vector(resize(out_a_imag, DATA_HALF));
+                                             when shift_right(out_a_imag, 1) < to_signed(SATU_LOW_LIM, out_a_imag'length) else
+                                             std_logic_vector(resize(shift_right(out_a_imag, 1), DATA_HALF));
 
     out_b(DATA_WIDTH -1 downto DATA_HALF) <= std_logic_vector(to_signed(SATU_UP_LIM, DATA_HALF)) 
-                                             when out_b_real > to_signed(SATU_UP_LIM, out_a_real'length) else
+                                             when shift_right(out_b_real, 1) > to_signed(SATU_UP_LIM, out_b_real'length) else
                                              std_logic_vector(to_signed(SATU_LOW_LIM, DATA_HALF)) 
-                                             when out_b_real < to_signed(SATU_LOW_LIM, out_a_real'length) else
-                                             std_logic_vector(resize(out_b_real, DATA_HALF));
+                                             when shift_right(out_b_real, 1) < to_signed(SATU_LOW_LIM, out_b_real'length) else
+                                             std_logic_vector(resize(shift_right(out_b_real, 1), DATA_HALF));
 
     out_b(DATA_HALF -1 downto 0)          <= std_logic_vector(to_signed(SATU_UP_LIM, DATA_HALF)) 
-                                             when out_b_imag > to_signed(SATU_UP_LIM, out_a_imag'length) else
+                                             when shift_right(out_b_imag, 1) > to_signed(SATU_UP_LIM, out_b_imag'length) else
                                              std_logic_vector(to_signed(SATU_LOW_LIM, DATA_HALF)) 
-                                             when out_b_imag < to_signed(SATU_LOW_LIM, out_a_imag'length) else
-                                             std_logic_vector(resize(out_b_imag, DATA_HALF));
+                                             when shift_right(out_b_imag, 1) < to_signed(SATU_LOW_LIM, out_b_imag'length) else
+                                             std_logic_vector(resize(shift_right(out_b_imag, 1), DATA_HALF));
 
 end architecture;

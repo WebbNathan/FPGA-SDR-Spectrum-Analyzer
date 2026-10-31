@@ -42,7 +42,7 @@ begin
                     temp := resize(
                                 shift_left(
                                     shift_right(
-                                        unsigned(j), 
+                                        resize(unsigned(j), temp'length), 
                                         to_integer(unsigned(i))
                                     ), 
                                     to_integer(unsigned(i))

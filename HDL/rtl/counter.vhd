@@ -13,14 +13,16 @@ entity counter is
         LOG_N : integer := 10 -- log2(N) 
     );
     port(
-        clk       : in std_logic;
-        reset     : in std_logic;
-        
-        pulse_in  : in std_logic; -- Pulse 1 to increment counter
-        pulse_out : out std_logic; -- Output 1 if increment complete
+        clk          : in std_logic;
+        reset        : in std_logic;
 
-        i_out     : out std_logic_vector(clog2(LOG_N + 1) -1 downto 0); -- Stage counter
-        j_out     : out std_logic_vector(clog2(N/2) -1 downto 0) -- Butterfly counter
+        system_reset : in std_logic; -- For use by the FFT controller to reset counter
+        
+        pulse_in     : in std_logic; -- Pulse 1 to increment counter
+        pulse_out    : out std_logic; -- Output 1 if increment complete
+
+        i_out        : out std_logic_vector(clog2(LOG_N + 1) -1 downto 0); -- Stage counter
+        j_out        : out std_logic_vector(clog2(N/2) -1 downto 0) -- Butterfly counter
     );
 end counter;
 
@@ -32,7 +34,7 @@ begin
     process(clk)
     begin
         if rising_edge(clk) then
-            if reset = '1' then
+            if reset = '1' or system_reset = '1' then
                 pulse_out <= '1';
                 i_out     <= (others => '0');
                 j_out     <= (others => '0');

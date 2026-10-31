@@ -85,7 +85,11 @@ begin
                     if last_sample = '1' then
                         controller_state <= DONE_S;
                     end if;
-                    write_pulse <= '1';
+                    if in_valid = '1' then
+                        write_pulse <= '1';
+                    else
+                        write_pulse <= '0';
+                    end if;
                     done        <= '0';
 
                 when DONE_S =>
