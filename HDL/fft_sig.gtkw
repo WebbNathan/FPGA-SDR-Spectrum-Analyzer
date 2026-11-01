@@ -1,0 +1,33 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Sat Oct 31 21:21:30 2026
+[*]
+[dumpfile] "/home/webbn/githubRepos/FPGA-SDR-Spectrum-Analyzer/HDL/fft.ghw"
+[dumpfile_mtime] "Sat Oct 31 21:17:47 2026"
+[dumpfile_size] 11158626
+[savefile] "/home/webbn/githubRepos/FPGA-SDR-Spectrum-Analyzer/HDL/fft_sig.gtkw"
+[timestart] 1302612340000
+[size] 1000 600
+[pos] -1 -1
+*-24.000000 1302620050000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.fft_tb.
+[treeopen] top.fft_tb.dut.
+[treeopen] top.fft_tb.dut.fft_output_contr.
+[sst_width] 237
+[signals_width] 175
+[sst_expanded] 1
+[sst_vpaned_height] 158
+@420
+top.fft_tb.dut.fft_coord.coord_s
+top.fft_tb.dut.fft_input_contr.controller_state
+top.fft_tb.dut.fft_output_contr.controller_state
+@28
+top.fft_tb.dut.fft_output_contr.last_sample
+top.fft_tb.clk
+@23
+#{top.fft_tb.dut.fft_output_contr.addr[9:0]} top.fft_tb.dut.fft_output_contr.addr[9] top.fft_tb.dut.fft_output_contr.addr[8] top.fft_tb.dut.fft_output_contr.addr[7] top.fft_tb.dut.fft_output_contr.addr[6] top.fft_tb.dut.fft_output_contr.addr[5] top.fft_tb.dut.fft_output_contr.addr[4] top.fft_tb.dut.fft_output_contr.addr[3] top.fft_tb.dut.fft_output_contr.addr[2] top.fft_tb.dut.fft_output_contr.addr[1] top.fft_tb.dut.fft_output_contr.addr[0]
+@420
+top.fft_tb.dut.fft_module.fft_contr.state
+[pattern_trace] 1
+[pattern_trace] 0

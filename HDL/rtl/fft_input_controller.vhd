@@ -23,13 +23,14 @@ entity fft_input_controller is
 
         addr            : out std_logic_vector(ADDR_WIDTH -1 downto 0);
         write_pulse     : out std_logic;
-        done            : out std_logic;
+        done            : out std_logic
     );
 end fft_input_controller;
 
 architecture rtl of fft_input_controller is
     type INPUT_CONT_state_t is (
         IDLE_S,
+        INITIAL_IN_VALID,
         RUNNING_S,
         DONE_S
     );
@@ -41,26 +42,30 @@ architecture rtl of fft_input_controller is
 begin
 
     -- To determine if on last sample
-    last_sample <= '1' when
-        in_valid = '1'
-        and controller_state = RUNNING_S
-        and num_samples_cnt = to_unsigned(FFT_SIZE - 1, num_samples_cnt'length)
-    else '0';
+    process(all)
+    begin
+        last_sample <= '1' when
+            controller_state = RUNNING_S
+            and num_samples_cnt = to_unsigned(FFT_SIZE - 1, num_samples_cnt'length)
+        else '0';
+    end process;
 
--- Number of samples counter logic
+    -- Number of samples counter logic
     process(clk)
     begin
-        if reset = '1' then
-            num_samples_cnt <= (others => '0');
-        else
-            if in_valid = '1' 
-            and controller_state = RUNNING_S
-            then
-                if last_sample = '1'then
+        if rising_edge(clk) then
+            if reset = '1' then
+                num_samples_cnt <= (others => '0');
+            else
+                if in_valid = '1' 
+                and controller_state = RUNNING_S
+                then
+                    if last_sample = '0' then
+                        num_samples_cnt <= num_samples_cnt 
+                                        + to_unsigned(1, num_samples_cnt'length);
+                    end if;
+                elsif controller_state = DONE_S then
                     num_samples_cnt <= (others => '0');
-                else
-                    num_samples_cnt <= num_samples_cnt 
-                                    + to_unsigned(1, num_samples_cnt'length);
                 end if;
             end if;
         end if;
@@ -68,39 +73,58 @@ begin
 
     process(clk)
     begin
-        if reset = '1' then
-            controller_state <= IDLE_S;
-            write_pulse      <= '0';
-            done             <= '0';
-        else
-            case controller_state is
-                when IDLE_S =>
-                    if start = '1' then
-                        controller_state <= RUNNING_S;
-                    end if;
-                    write_pulse <= '0';
-                    done        <= '0';
-                
-                when RUNNING_S =>
-                    if last_sample = '1' then
-                        controller_state <= DONE_S;
-                    end if;
-                    if in_valid = '1' then
-                        write_pulse <= '1';
-                    else
-                        write_pulse <= '0';
-                    end if;
-                    done        <= '0';
+        if rising_edge(clk) then
+            if reset = '1' then
+                controller_state <= IDLE_S;
+                write_pulse      <= '0';
+                done             <= '0';
+            else
+                case controller_state is
+                    when IDLE_S =>
+                        if start = '1' then
+                            controller_state <= INITIAL_IN_VALID;
+                        else
+                            controller_state <= IDLE_S;
+                        end if;
 
-                when DONE_S =>
-                    if start = '1' then
-                        controller_state <= RUNNING_S;
-                        done             <= '0';
-                    else
-                        done <= '1';
-                    end if;
-                    write_pulse <= '0';
-            end case;
+                        write_pulse <= '0';
+                        done        <= '0';
+                    when INITIAL_IN_VALID =>
+                        if in_valid = '1' then
+                            controller_state <= RUNNING_S;
+                            write_pulse <= '1';
+                        else
+                            controller_state <= INITIAL_IN_VALID;
+                            write_pulse <= '0';
+                        end if;
+
+                        done        <= '0';
+                    when RUNNING_S =>
+                        if last_sample = '1' then
+                            controller_state <= DONE_S;
+                        else
+                            controller_state <= RUNNING_S;
+                        end if;
+
+                        if in_valid = '1' then
+                            write_pulse <= '1';
+                        else
+                            write_pulse <= '0';
+                        end if;
+
+                        done        <= '0';
+                    when DONE_S =>
+                        if start = '1' then
+                            controller_state <= INITIAL_IN_VALID;
+                            done             <= '0';
+                        else
+                            controller_state <= DONE_S;
+                            done <= '1';
+                        end if;
+
+                        write_pulse <= '0';
+                end case;
+            end if;
         end if;
     end process;
 

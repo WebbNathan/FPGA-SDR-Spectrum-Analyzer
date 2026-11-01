@@ -80,6 +80,7 @@ begin
                         if start ='1' then  
                             state <= GET_AB;
                         end if;
+                        counter_reset <= '0';
                     
                     when COUNTER =>
                         counter_pulse <= '1';

@@ -1,31 +1,31 @@
 v 4
-file . "tb/fft_tb.vhd" "483dbf27d88dc76690089b413bfc255cdddc4697" "20261031003334.420":
-  entity fft_tb at 1( 0) + 0 on 734;
-  architecture sim of fft_tb at 11( 145) + 0 on 735;
-file . "rtl/fft.vhd" "7e8effb6829e4d5c0f23ccf2cd114f60c9837b5e" "20261031003334.419":
-  entity fft at 1( 0) + 0 on 732;
-  architecture rtl of fft at 31( 657) + 0 on 733;
+file . "tb/fft_tb.vhd" "13fca7d13e60f20b4875f51164a1d0caf5440a33" "20261101000618.488":
+  entity fft_tb at 1( 0) + 0 on 1758;
+  architecture sim of fft_tb at 13( 196) + 0 on 1759;
+file . "rtl/fft.vhd" "96c09ef0c0f00f47687269bc23a398d341d24e6f" "20261101000618.486":
+  entity fft at 1( 0) + 0 on 1754;
+  architecture rtl of fft at 39( 1072) + 0 on 1755;
 file . "tb/get_twiddle_tb.vhd" "b0c6a3cc03563894153725b0f72ce40831bc28f5" "20261030000117.828":
   entity get_twiddle_tb at 1( 0) + 0 on 537;
   architecture sim of get_twiddle_tb at 11( 161) + 0 on 538;
-file . "rtl/fft_output_controller.vhd" "77838505f284e5a23962f258a77e8c96293a2a0d" "20260903054903.939":
-  entity fft_output_controller at 1( 0) + 0 on 513;
-  architecture rtl of fft_output_controller at 30( 791) + 0 on 514;
+file . "rtl/fft_output_controller.vhd" "ae062c224e7bbe315de21c3732bded7406e95568" "20261101000618.475":
+  entity fft_output_controller at 1( 0) + 0 on 1738;
+  architecture rtl of fft_output_controller at 31( 827) + 0 on 1739;
 file . "rtl/get_twiddle.vhd" "2fc5dc3c27e08d0ae09fa5c186984ed876bb0237" "20261030062442.790":
   entity get_twiddle at 1( 0) + 0 on 540;
   architecture rtl of get_twiddle at 34( 796) + 0 on 541;
-file . "rtl/fft_controller.vhd" "94fa23403b02f615685e42532d70f94ce3790dd9" "20261031003334.410":
-  entity fft_controller at 1( 0) + 0 on 722;
-  architecture rtl of fft_controller at 41( 1234) + 0 on 723;
-file . "rtl/get_ab.vhd" "32361d330289c4a0c98c848bd5ed62ae945d2c3d" "20261031003334.411":
-  entity get_ab at 1( 0) + 0 on 724;
-  architecture rtl of get_ab at 29( 683) + 0 on 725;
+file . "rtl/fft_controller.vhd" "ca44ea7fc46d2594dc607d860292cf48abcd8042" "20261101000618.476":
+  entity fft_controller at 1( 0) + 0 on 1742;
+  architecture rtl of fft_controller at 41( 1234) + 0 on 1743;
+file . "rtl/get_ab.vhd" "32361d330289c4a0c98c848bd5ed62ae945d2c3d" "20261101000618.477":
+  entity get_ab at 1( 0) + 0 on 1744;
+  architecture rtl of get_ab at 29( 683) + 0 on 1745;
 file . "tb/counter_tb.vhd" "b8f75ccc6d0ea6600b07c0278280359ab213d219" "20261029234237.122":
   entity counter_tb at 1( 0) + 0 on 525;
   architecture sim of counter_tb at 11( 153) + 0 on 526;
-file . "rtl/ram.vhd" "deabf2128a99c783df0b4267f140fb46a3ed69d1" "20261031003334.413":
-  entity ram at 1( 0) + 0 on 726;
-  architecture rtl of ram at 41( 1122) + 0 on 727;
+file . "rtl/ram.vhd" "5ac2188e59413ac530a2b28866e7a15bf910da7d" "20261101000618.478":
+  entity ram at 1( 0) + 0 on 1746;
+  architecture rtl of ram at 44( 1225) + 0 on 1747;
 file . "rtl/filter_pipeline.vhd" "a2988ad26241cec4facdc6f0f19454e10ce6e73e" "20260823225125.634":
   entity filter_pipeline at 1( 0) + 0 on 474;
   architecture rtl of filter_pipeline at 42( 1310) + 0 on 475;
@@ -53,14 +53,23 @@ file . "rtl/fir_decim.vhd" "a920adfa53be0dd6183bda97040607dcf18668df" "202608231
 file . "tb/fir_decim_tb.vhd" "27ffb12399f20c6657c0ed28050a3486d3b24cba" "20260823173905.047":
   entity fir_decim_tb at 1( 0) + 0 on 468;
   architecture sim of fir_decim_tb at 12( 186) + 0 on 469;
-file . "rtl/butterfly.vhd" "54efd5c21220e726f5c2cf77d35f291ee85c5810" "20261031003334.415":
-  entity butterfly at 1( 0) + 0 on 730;
-  architecture rtl of butterfly at 32( 905) + 0 on 731;
-file . "rtl/counter.vhd" "955d8a81367cedfffce8d6e8da9a3d4106fd353d" "20261031003334.413":
-  entity counter at 1( 0) + 0 on 728;
-  architecture rtl of counter at 29( 854) + 0 on 729;
+file . "rtl/butterfly.vhd" "54efd5c21220e726f5c2cf77d35f291ee85c5810" "20261101000618.480":
+  entity butterfly at 1( 0) + 0 on 1750;
+  architecture rtl of butterfly at 32( 905) + 0 on 1751;
+file . "rtl/counter.vhd" "955d8a81367cedfffce8d6e8da9a3d4106fd353d" "20261101000618.479":
+  entity counter at 1( 0) + 0 on 1748;
+  architecture rtl of counter at 29( 854) + 0 on 1749;
 file . "pkg/twiddle_factors.vhd" "3adc6d2b12ea6464b7fb269425a7787293d68bf8" "20261030062320.348":
   package twiddle_factors at 1( 0) + 0 on 539;
-file . "rtl/fft_input_controller.vhd" "5cd58a1182bf6acac9503c8292d330e025066866" "20260903043019.459":
-  entity fft_input_controller at 1( 0) + 0 on 511;
-  architecture rtl of fft_input_controller at 31( 862) + 0 on 512;
+file . "rtl/fft_input_controller.vhd" "b26461b1d85ff1de82f7fac45e9578c15ad9ecb6" "20261101000618.475":
+  entity fft_input_controller at 1( 0) + 0 on 1740;
+  architecture rtl of fft_input_controller at 30( 821) + 0 on 1741;
+file . "rtl/fft_ram.vhd" "c434dd61497f33f6b5ae4e22d8d28d23bc91e137" "20261101000618.482":
+  entity fft_ram at 1( 0) + 0 on 1752;
+  architecture rtl of fft_ram at 63( 1868) + 0 on 1753;
+file . "rtl/fft_full_system.vhd" "fc5a0c1e461ad8e3ad51c0c444258284f1e9aa69" "20261101000618.487":
+  entity fft_full_system at 1( 0) + 0 on 1756;
+  architecture rtl of fft_full_system at 30( 743) + 0 on 1757;
+file . "rtl/fft_coordinator.vhd" "2066caa5baa925e55b33c2d3359ce85dfe671c76" "20261031204723.472":
+  entity fft_coordinator at 1( 0) + 0 on 1332;
+  architecture rtl of fft_coordinator at 28( 667) + 0 on 1333;

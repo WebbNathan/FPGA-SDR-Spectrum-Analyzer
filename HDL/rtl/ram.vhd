@@ -34,7 +34,10 @@ entity ram is
         read_done  : out std_logic;
         write_done : out std_logic; 
 
-        one_input  : in std_logic -- For specifying whether only one input port is used (1 if yes)
+        one_input  : in std_logic; -- For specifying whether only one input port is used (1 if yes)
+
+        -- Test signals
+        dump_out   : in std_logic -- 1 if module should dump outputs to file
     );
 end ram;
 
@@ -57,7 +60,8 @@ architecture rtl of ram is
         return memory;
     end function;
 
-    signal mem : mem_t := init_ram("pkg/fft_input.hex");
+    --signal mem : mem_t := init_ram("pkg/fft_input.hex");
+    signal mem : mem_t := (others => (others => '0'));
 begin
 
     process(clk) 
@@ -96,14 +100,16 @@ begin
         wait for 2 ms;  -- After the FFT finishes.
         wait until falling_edge(clk);
 
-        for idx in mem'range loop
-            hwrite(row, mem(idx));
-            writeline(output_file, row);
-        end loop;
+        if dump_out = '1' then
+            for idx in mem'range loop
+                hwrite(row, mem(idx));
+                writeline(output_file, row);
+            end loop;
 
-        file_close(output_file);
-        report "RAM dumped to fft_output.hex";
-        wait;
+            file_close(output_file);
+            report "RAM dumped to fft_output.hex";
+            wait;
+        end if;
     end process;
     -- synthesis translate_on
 
