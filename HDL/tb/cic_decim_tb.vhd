@@ -3,6 +3,8 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 use std.textio.all;
+library work;
+use work.util_pkg.all;
 
 entity cic_decim_tb is
 end entity cic_decim_tb;
@@ -13,18 +15,19 @@ architecture sim of cic_decim_tb is
     constant IN_WIDTH         : integer := 16;
     constant OUT_WIDTH        : integer := 16;
     constant N                : integer := 2;
-    constant R                : integer := 64;
+    constant R_MAX            : integer := 64;
 
     signal clk                : std_logic := '0';
     signal reset              : std_logic := '0';
-
-    signal slow_clk           : std_logic;
 
     signal signal_in          : std_logic_vector(IN_WIDTH -1 downto 0);
     signal signal_out         : std_logic_vector(OUT_WIDTH -1 downto 0);
 
     signal in_valid           : std_logic;
     signal out_valid          : std_logic;
+
+    signal decim_factor       : std_logic_vector(clog2(R_MAX +1) -1 downto 0);
+    signal gain_shift         : std_logic_vector(clog2(N*clog2(R_MAX +1)) -1 downto 0);
 
     file input_file           : text open read_mode  is "sim/cic_decim_in.txt";
     file output_file          : text open write_mode is "sim/cic_decim_out.txt";        
@@ -35,7 +38,7 @@ begin
     dut : entity work.cic_decim
         generic map (
             N         => N,
-            R         => R,
+            R_MAX     => R_MAX,
             IN_WIDTH  => IN_WIDTH,
             OUT_WIDTH => OUT_WIDTH
         )
@@ -43,10 +46,11 @@ begin
             clk           => clk,
             reset         => reset,
             signal_in     => signal_in,
-            slow_clk      => slow_clk,
             signal_out    => signal_out,
             in_valid      => in_valid,
-            out_valid     => out_valid
+            out_valid     => out_valid,
+            decim_factor  => decim_factor,
+            gain_shift    => gain_shift
         );
 
     -- Clock generator
@@ -66,6 +70,9 @@ begin
         variable input_line : line;
         variable sample_int : integer;
     begin
+
+        decim_factor <= std_logic_vector(to_unsigned(64, decim_factor'length));
+        gain_shift   <= std_logic_vector(to_unsigned(12, gain_shift'length));
 
         -- Hold reset active
         reset         <= '1';
@@ -97,10 +104,10 @@ begin
     begin
         if rising_edge(clk) then
 
-            if(slow_clk) = '1' and out_valid = '1' then
+            if out_valid = '1' then
 
                 write(output_line, to_integer(signed(signal_out)));
-
+ 
                 writeline(output_file, output_line);
 
             end if;

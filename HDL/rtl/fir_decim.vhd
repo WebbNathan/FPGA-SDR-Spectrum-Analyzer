@@ -132,20 +132,22 @@ begin
     process(clk)
     begin
         if rising_edge(clk) then
+            decim_pulse <= '0';
+
             if reset = '1' then
                 decim_cnt   <= to_unsigned(0, decim_cnt'length);
                 decim_pulse <= '0';
             else
-                if decim_cnt = to_unsigned(0, decim_cnt'length) then
-                    decim_pulse <= '1';
-                else
-                    decim_pulse <= '0';
-                end if;
+                if in_valid = '1' then
+                    if decim_cnt = to_unsigned(0, decim_cnt'length) then
+                        decim_pulse <= '1';
+                    end if;
 
-                if decim_cnt = DECIM_FACTOR - 1 then
-                    decim_cnt <= to_unsigned(0, decim_cnt'length);
-                else
-                    decim_cnt <= decim_cnt + 1;
+                    if decim_cnt = DECIM_FACTOR - 1 then
+                        decim_cnt <= to_unsigned(0, decim_cnt'length);
+                    else
+                        decim_cnt <= decim_cnt + 1;
+                    end if;
                 end if;
             end if;
         end if;

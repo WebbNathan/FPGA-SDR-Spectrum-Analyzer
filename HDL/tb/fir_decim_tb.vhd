@@ -12,13 +12,13 @@ end entity fir_decim_tb;
 architecture sim of fir_decim_tb is
     constant CLK_PERIOD       : time    := 8 ns; -- 125MHz
     constant DATA_WIDTH       : integer := 16;
-    constant NUM_TAPS         : integer := 31;
-    constant TAPS             : taps_array(0 to NUM_TAPS -1) := load_taps(
-                                                                "sim/fir_decim_taps.txt",
-                                                                NUM_TAPS);
+    constant NUM_TAPS         : integer := 39;
+    constant TAPS             : taps_array(0 to NUM_TAPS -1) := FIR_MOD_1_TAPS;
                                                                 
-    constant DECIM_FACTOR     : integer := 4;
+    constant DECIM_FACTOR     : integer := 2;
     constant R_WIDTH          : natural := clog2(DECIM_FACTOR);
+
+    signal decim_clk          : unsigned(5 downto 0); -- Goes up to 64
 
     signal clk                : std_logic := '0';
     signal reset              : std_logic := '0';
@@ -62,6 +62,16 @@ begin
         end loop;
     end process;
 
+    -- Decimated clock
+    decim_clk_process : process
+    begin
+        decim_clk <= to_unsigned(0, decim_clk'length);
+        while true loop
+            wait until rising_edge(clk);
+            decim_clk <= decim_clk + to_unsigned(1, decim_clk'length);
+        end loop;
+    end process;
+
     -- Input stimulus
     stimulus_proc : process
         variable input_line : line;
@@ -82,7 +92,11 @@ begin
             read(input_line, sample_int);
 
             signal_in <= std_logic_vector(to_signed(sample_int, signal_in'length));
-            in_valid  <= '1';
+            if decim_clk = to_unsigned(0, decim_clk'length) then
+                in_valid  <= '1';
+            else
+                in_valid  <= '0';
+            end if;
 
             wait until rising_edge(clk);
 

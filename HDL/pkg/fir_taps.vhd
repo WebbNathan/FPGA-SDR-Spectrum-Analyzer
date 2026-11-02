@@ -8,14 +8,90 @@ use std.textio.all;
 package fir_taps is
 
     type taps_array is array (natural range <>) of signed(15 downto 0);
-    constant NUM_TAPS : integer := 31;
+    constant NUM_TAPS_ARRAY : integer := 39;
 
-    constant FIR_MOD_1_TAPS : taps_array(0 to NUM_TAPS -1) := (
-
+    constant FIR_MOD_1_TAPS : taps_array(0 to NUM_TAPS_ARRAY -1) := (
+        0 => x"FFF6",
+        1 => x"FFEF",
+        2 => x"0012",
+        3 => x"0043",
+        4 => x"0011",
+        5 => x"FF7D",
+        6 => x"FF70",
+        7 => x"0084",
+        8 => x"016E",
+        9 => x"0037",
+        10 => x"FDBE",
+        11 => x"FDE9",
+        12 => x"021F",
+        13 => x"0512",
+        14 => x"0062",
+        15 => x"F77F",
+        16 => x"F82B",
+        17 => x"0B46",
+        18 => x"269E",
+        19 => x"33AB",
+        20 => x"269E",
+        21 => x"0B46",
+        22 => x"F82B",
+        23 => x"F77F",
+        24 => x"0062",
+        25 => x"0512",
+        26 => x"021F",
+        27 => x"FDE9",
+        28 => x"FDBE",
+        29 => x"0037",
+        30 => x"016E",
+        31 => x"0084",
+        32 => x"FF70",
+        33 => x"FF7D",
+        34 => x"0011",
+        35 => x"0043",
+        36 => x"0012",
+        37 => x"FFEF",
+        38 => x"FFF6"
     );
 
-    constant FIR_MOD_2_TAPS : taps_array(0 to NUM_TAPS -1) := (
-
+    constant FIR_MOD_2_TAPS : taps_array(0 to NUM_TAPS_ARRAY -1) := (
+        0 => x"FFF6",
+        1 => x"FFEF",
+        2 => x"0012",
+        3 => x"0043",
+        4 => x"0011",
+        5 => x"FF7D",
+        6 => x"FF70",
+        7 => x"0084",
+        8 => x"016E",
+        9 => x"0037",
+        10 => x"FDBE",
+        11 => x"FDE9",
+        12 => x"021F",
+        13 => x"0512",
+        14 => x"0062",
+        15 => x"F77F",
+        16 => x"F82B",
+        17 => x"0B46",
+        18 => x"269E",
+        19 => x"33AB",
+        20 => x"269E",
+        21 => x"0B46",
+        22 => x"F82B",
+        23 => x"F77F",
+        24 => x"0062",
+        25 => x"0512",
+        26 => x"021F",
+        27 => x"FDE9",
+        28 => x"FDBE",
+        29 => x"0037",
+        30 => x"016E",
+        31 => x"0084",
+        32 => x"FF70",
+        33 => x"FF7D",
+        34 => x"0011",
+        35 => x"0043",
+        36 => x"0012",
+        37 => x"FFEF",
+        38 => x"FFF6"
     );
 
     function create_sub_tap_array(

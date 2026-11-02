@@ -14,10 +14,10 @@ entity cic_decim is
     );
     port(
         clk          : in std_logic;
-        reset        : in std_logic;
+        reset        : in std_logic;    
         signal_in    : in std_logic_vector(IN_WIDTH -1 downto 0);
-        decim_factor : in std_logic_vector(clog2(R_MAX) -1 downto 0);
-        gain_shift   : in std_logic_vector(clog2(clog2(R_MAX +1)) -1 downto 0);
+        decim_factor : in std_logic_vector(clog2(R_MAX +1) -1 downto 0);
+        gain_shift   : in std_logic_vector(clog2(N*clog2(R_MAX +1)) -1 downto 0);
 
         signal_out   : out std_logic_vector(OUT_WIDTH -1 downto 0);
 
@@ -62,14 +62,23 @@ begin
                     out_valid_pipeline_reg(i + N) <= '0';
                 else
                     if i = 0 then
-                        int_pipeline_reg(i)       <= resize(signed(signal_in), int_pipeline_reg(i)'length) + int_pipeline_reg(i);
-                        out_valid_pipeline_reg(i) <= in_valid;
+                        int_pipeline_reg(i)           <= resize(signed(signal_in), int_pipeline_reg(i)'length) + int_pipeline_reg(i);
+                        out_valid_pipeline_reg(i)     <= in_valid;
 
                         if slow_clk = '1' then
                             comb_pipeline_reg(i)          <= int_pipeline_reg(N -1) - comb_prev_in_pipeline_reg(i);
                             comb_prev_in_pipeline_reg(i)  <= int_pipeline_reg(N -1);
                             out_valid_pipeline_reg(i + N) <= out_valid_pipeline_reg(i + N -1);
                         end if;
+                    elsif i = (N-1) then
+                        int_pipeline_reg(i)       <= int_pipeline_reg(i -1) + int_pipeline_reg(i);
+                        out_valid_pipeline_reg(i) <= out_valid_pipeline_reg(i -1);
+
+                        if slow_clk = '1' then
+                            comb_pipeline_reg(i)          <= comb_pipeline_reg(i -1) - comb_prev_in_pipeline_reg(i);
+                            comb_prev_in_pipeline_reg(i)  <= comb_pipeline_reg(i -1);
+                        end if;
+                        out_valid_pipeline_reg(i + N) <= out_valid_pipeline_reg(i + N -1) and slow_clk; -- Ensures pulsing out valid only at decimation rate
                     else
                         int_pipeline_reg(i)       <= int_pipeline_reg(i -1) + int_pipeline_reg(i);
                         out_valid_pipeline_reg(i) <= out_valid_pipeline_reg(i -1);
