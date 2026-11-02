@@ -35,7 +35,7 @@ architecture rtl of spectrum_analyzer is
     constant FFT_SIZE         : integer := 1024;
     constant DOUBLE_DATA_SIZE : integer := DATA_SIZE*2;
     constant DECIM_RATE       : integer := 128;
-    constant NUM_TAPS         : integer := 39;
+    constant NUM_TAPS         : integer := 91;
     constant FIR_DECIM_FACTOR : integer := 2;
     constant CIC_N            : integer := 2;
     constant CIC_R_MAX        : integer := 64;

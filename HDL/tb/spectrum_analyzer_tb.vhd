@@ -20,6 +20,7 @@ architecture sim of spectrum_analyzer_tb is
 
     signal signal_in         : std_logic_vector(DATA_WIDTH -1 downto 0);
     signal signal_out        : std_logic_vector((DATA_WIDTH*2) -1 downto 0);
+    
     signal in_valid          : std_logic;
     signal out_valid         : std_logic;
 
@@ -88,6 +89,11 @@ begin
 
     capture_proc : process
         file output_file : text open write_mode is "sim/analyzer_frames.hex";
+        file fir_real_file : text open write_mode is "sim/fir_real.hex";
+        file fir_imag_file : text open write_mode is "sim/fir_imag.hex";
+
+        variable real_row : line;
+        variable imag_row : line;
         variable row          : line;
         variable frame_number : natural := 0;
         variable sample_count : natural := 0;

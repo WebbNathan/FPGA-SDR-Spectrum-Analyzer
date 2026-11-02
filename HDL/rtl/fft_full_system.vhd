@@ -54,6 +54,7 @@ architecture rtl of fft_full_system is
     signal sample_addr        : std_logic_vector(LOG_FFT_SIZE -1 downto 0);
     signal sample_write_pulse : std_logic;
     signal sample_write_done  : std_logic;
+    signal signal_in_latch    : std_logic_vector(DATA_SIZE -1 downto 0);
 
     -- Output Controller
     signal output_complete    : std_logic;
@@ -145,7 +146,7 @@ begin
             sample_addr       => sample_addr,
 
             -- Sample input value
-            sample_in         => signal_in,
+            sample_in         => signal_in_latch,
 
             -- Sample write pulse
             sample_write      => sample_write_pulse,
@@ -208,7 +209,20 @@ begin
             done            => output_complete
         );
 
-        signal_out      <= output_out_val;
-        fft_output_done <= output_complete;
+    process(clk) 
+    begin
+        if rising_edge(clk) then
+            if reset = '1' then
+                signal_in_latch <= (others => '0');
+            else
+                if in_valid = '1' then
+                    signal_in_latch <= signal_in;
+                end if;
+            end if;
+        end if;    
+    end process;
+
+    signal_out      <= output_out_val;
+    fft_output_done <= output_complete;
 
 end architecture;
