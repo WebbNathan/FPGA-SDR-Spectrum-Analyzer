@@ -41,6 +41,16 @@ architecture rtl of butterfly is
     signal data_b_imag    : signed(DATA_HALF -1 downto 0);
     signal twiddle_real   : signed(DATA_HALF -1 downto 0);
     signal twiddle_imag   : signed(DATA_HALF -1 downto 0);
+    
+    signal br_wr          : signed(DATA_HALF + ACCU_BUFFER -1 downto 0);
+    signal bi_wi          : signed(DATA_HALF + ACCU_BUFFER -1 downto 0);
+    signal bi_wr          : signed(DATA_HALF + ACCU_BUFFER -1 downto 0);
+    signal br_wi          : signed(DATA_HALF + ACCU_BUFFER -1 downto 0);
+    
+    signal a_real_d       : signed(DATA_HALF + ACCU_BUFFER -1 downto 0);
+    signal a_imag_d       : signed(DATA_HALF + ACCU_BUFFER -1 downto 0);
+    
+    signal in_valid_delay : std_logic;
  
     signal out_a_real     : signed(DATA_HALF + ACCU_BUFFER -1 downto 0);
     signal out_a_imag     : signed(DATA_HALF + ACCU_BUFFER -1 downto 0);
@@ -56,23 +66,36 @@ begin
                 out_b_real     <= (others => '0');
                 out_b_imag     <= (others => '0');
                 out_valid      <= '0';
-            else    
-                out_a_real <= resize(data_a_real, out_a_real'length)  
-                              + resize(shift_right(data_b_real * twiddle_real, FRAC_BITS), out_a_real'length)
-                              - resize(shift_right(data_b_imag * twiddle_imag, FRAC_BITS), out_a_real'length);
-                out_a_imag <= resize(data_a_imag, out_a_imag'length)
-                              + resize(shift_right(data_b_imag * twiddle_real, FRAC_BITS), out_a_imag'length)
-                              + resize(shift_right(data_b_real * twiddle_imag, FRAC_BITS), out_a_imag'length);
-
-                out_b_real <= resize(data_a_real, out_b_real'length) 
-                              - resize(shift_right(data_b_real * twiddle_real, FRAC_BITS), out_b_real'length)
-                              + resize(shift_right(data_b_imag * twiddle_imag, FRAC_BITS), out_b_real'length);
-
-                out_b_imag <= resize(data_a_imag, out_b_imag'length)
-                              - resize(shift_right(data_b_imag * twiddle_real, FRAC_BITS), out_b_imag'length)
-                              - resize(shift_right(data_b_real * twiddle_imag, FRAC_BITS), out_b_imag'length);
-
-                out_valid <= '1';
+                in_valid_delay <= '0';
+            else
+                if in_valid = '1' then    
+                    br_wr <= resize(shift_right(data_b_real * twiddle_real, FRAC_BITS),
+                    br_wr'length);
+                    bi_wi <= resize(shift_right(data_b_imag * twiddle_imag, FRAC_BITS),
+                                    bi_wi'length);
+                    bi_wr <= resize(shift_right(data_b_imag * twiddle_real, FRAC_BITS),
+                                    bi_wr'length);
+                    br_wi <= resize(shift_right(data_b_real * twiddle_imag, FRAC_BITS),
+                                    br_wi'length);
+                    
+                    a_real_d <= resize(data_a_real, a_real_d'length);
+                    a_imag_d <= resize(data_a_imag, a_imag_d'length);
+                    
+                    in_valid_delay <= '1';
+                 else
+                    in_valid_delay <= '0';
+                 end if;
+                 
+                 if in_valid_delay = '1' then
+                    out_a_real <= a_real_d + br_wr - bi_wi;
+                    out_a_imag <= a_imag_d + bi_wr + br_wi;
+                    
+                    out_b_real <= a_real_d - br_wr + bi_wi;
+                    out_b_imag <= a_imag_d - bi_wr - br_wi;
+                    out_valid  <= '1';
+                 else
+                    out_valid <= '0';
+                 end if;
             end if;
         end if;
     end process;
