@@ -45,24 +45,36 @@ architecture rtl of fir_decim_sub is
     
     type signed_arr_DATA_WIDTH_bit is array (natural range <>) of 
         signed(DATA_WIDTH -1 downto 0);
+        
+    type ACCU_state_t is (
+        LATCHING_S,
+        ACCU_S
+    );
 
     -- Delay logic
-    signal in_valid_shft_reg  : std_logic := '0'; -- in_valid pipelining
-    signal signal_in_shft_reg : signed_arr_DATA_WIDTH_bit(0 to NUM_TAPS_RND -1); 
+    signal in_valid_shft_reg            : std_logic := '0'; -- in_valid pipelining
+    signal signal_in_shft_reg           : signed_arr_DATA_WIDTH_bit(0 to NUM_TAPS_RND -1); 
 
     -- Split tap arrays
-    signal tap_array_1        : signed_arr_DATA_WIDTH_bit(0 to NUM_TAPS_HALF -1);
-    signal tap_array_2        : signed_arr_DATA_WIDTH_bit(0 to NUM_TAPS_HALF -1);
+    signal tap_array_1                  : signed_arr_DATA_WIDTH_bit(0 to NUM_TAPS_HALF -1);
+    signal tap_array_2                  : signed_arr_DATA_WIDTH_bit(0 to NUM_TAPS_HALF -1);
 
     -- Indexing and calculation logic
-    signal mux_cnt            : unsigned(MUX_CNT_WIDTH -1 downto 0) := (others => '0');
-    signal calculating_bool   : std_logic := '0'; -- If 1 then calculation in progress, else 0
-    signal curr_offset        : unsigned(CURR_OFF_SIZE -1 downto 0) := (others => '0'); 
+    signal mux_cnt                      : unsigned(MUX_CNT_WIDTH -1 downto 0) := (others => '0');
+    signal calculating_bool             : std_logic := '0'; -- If 1 then calculation in progress, else 0
+    signal curr_offset                  : unsigned(CURR_OFF_SIZE -1 downto 0) := (others => '0'); 
 
     -- Accumulator logic
-    signal accu_1             : signed(DATA_WIDTH + ADDED_WIDTH -1 downto 0) := (others => '0');
-    signal accu_2             : signed(DATA_WIDTH + ADDED_WIDTH -1 downto 0) := (others => '0');
-    signal total_accu_sum     : signed(DATA_WIDTH + ADDED_WIDTH -1 downto 0) := (others => '0');
+    signal first_pair                   : std_logic := '0';
+    signal last_pair                    : std_logic := '0';
+    signal accu_1                       : signed(DATA_WIDTH + ADDED_WIDTH -1 downto 0) := (others => '0');
+    signal accu_2                       : signed(DATA_WIDTH + ADDED_WIDTH -1 downto 0) := (others => '0');
+    signal total_accu_sum               : signed(DATA_WIDTH + ADDED_WIDTH -1 downto 0) := (others => '0');
+    signal signal_in_shft_reg_latch     : signed(DATA_WIDTH -1 downto 0);
+    signal signal_in_shft_reg_latch_off : signed(DATA_WIDTH -1 downto 0);
+    signal tap_array_1_latch            : signed(DATA_WIDTH -1 downto 0);
+    signal tap_array_2_latch            : signed(DATA_WIDTH -1 downto 0);
+    signal accu_state                   : ACCU_state_t := LATCHING_S;
 begin
 
     -- Generation of two tap arrays
@@ -114,18 +126,19 @@ begin
     begin
         if rising_edge(clk) then
             if reset = '1' then
-                mux_cnt      <= (others => '0');
-            else
-                if in_valid = '1' or 
-                   mux_cnt = to_unsigned(MUX_CNT_MAX, mux_cnt'length) then
-                    mux_cnt <= (others => '0'); -- Reset mux_cnt for new calculation
+                mux_cnt <= (others => '0');
+            elsif in_valid = '1' then
+                mux_cnt <= (others => '0');
+            elsif calculating_bool = '1' and accu_state = LATCHING_S then
+                if mux_cnt = MUX_CNT_MAX then
+                    mux_cnt <= (others => '0');
                 else
-                    mux_cnt <= mux_cnt +1;
+                    mux_cnt <= mux_cnt + 1;
                 end if;
             end if;
         end if;
     end process;
-
+    
     -- Calculating state machine
     process(clk)
     begin
@@ -135,7 +148,8 @@ begin
             else
                 if in_valid_shft_reg = '1' then
                     calculating_bool <= '1';
-                elsif mux_cnt = to_unsigned(MUX_CNT_MAX, mux_cnt'length) then
+                elsif last_pair = '1' and
+                      accu_state = ACCU_S then
                     calculating_bool <= '0';
                 end if;
             end if;
@@ -166,44 +180,67 @@ begin
             if reset = '1' then
                 accu_1 <= (others => '0');
                 accu_2 <= (others => '0');
-            else
-                if mux_cnt = to_unsigned(0, mux_cnt'length) then
-                    accu_1 <= resize(
-                                    shift_right(
-                                               signal_in_shft_reg(0) * 
-                                               tap_array_1(0), 
-                                               DATA_WIDTH -1 -- -1 to account for only fractional bits
-                                    ),
-                                    accu_1'length
-                            );
-                    accu_2 <= resize(
-                                    shift_right(
-                                               signal_in_shft_reg(to_integer(curr_offset)) * 
-                                               tap_array_2(0), 
-                                               DATA_WIDTH -1
-                                    ),
-                                    accu_2'length
-                            );
-                else
-                    accu_1 <= accu_1 +
-                              resize( 
-                                    shift_right(
-                                               signal_in_shft_reg(to_integer(mux_cnt)) * 
-                                               tap_array_1(to_integer(mux_cnt)), 
-                                               DATA_WIDTH -1
-                                    ),
-                                    accu_1'length
-                            );
-                    accu_2 <= accu_2 +
-                              resize( 
-                                    shift_right(
-                                               signal_in_shft_reg(to_integer(curr_offset)) * 
-                                               tap_array_2(to_integer(mux_cnt)), 
-                                               DATA_WIDTH -1
-                                    ),
-                                    accu_2'length
-                            );
-                end if;
+                accu_state <= LATCHING_S;
+                first_pair <= '0';
+                last_pair  <= '0';
+            elsif calculating_bool = '1' then
+                case accu_state is 
+                    when LATCHING_S =>
+                        if mux_cnt = to_unsigned(0, mux_cnt'length) then
+                            signal_in_shft_reg_latch     <= signal_in_shft_reg(0);
+                            signal_in_shft_reg_latch_off <= signal_in_shft_reg(to_integer(curr_offset));
+                            tap_array_1_latch            <= tap_array_1(0);
+                            tap_array_2_latch            <= tap_array_2(0);
+                            
+                        else
+                            signal_in_shft_reg_latch     <= signal_in_shft_reg((to_integer(mux_cnt)));
+                            signal_in_shft_reg_latch_off <= signal_in_shft_reg(to_integer(curr_offset));
+                            tap_array_1_latch            <= tap_array_1((to_integer(mux_cnt)));
+                            tap_array_2_latch            <= tap_array_2((to_integer(mux_cnt)));
+                        end if;
+                        first_pair <= '1' when mux_cnt = 0 else '0';
+                        last_pair  <= '1' when mux_cnt = MUX_CNT_MAX else '0';
+                        accu_state <= ACCU_S;
+                    when ACCU_S =>      
+                        if first_pair = '1' then
+                            accu_1 <= resize(
+                                            shift_right(
+                                                       signal_in_shft_reg_latch * 
+                                                       tap_array_1_latch, 
+                                                       DATA_WIDTH -1 -- -1 to account for only fractional bits
+                                            ),
+                                            accu_1'length
+                                    );
+                            accu_2 <= resize(
+                                            shift_right(
+                                                       signal_in_shft_reg_latch_off * 
+                                                       tap_array_2_latch, 
+                                                       DATA_WIDTH -1
+                                            ),
+                                            accu_2'length
+                                    );
+                        else
+                            accu_1 <= accu_1 +
+                                      resize( 
+                                            shift_right(
+                                                       signal_in_shft_reg_latch * 
+                                                       tap_array_1_latch, 
+                                                       DATA_WIDTH -1
+                                            ),
+                                            accu_1'length
+                                    );
+                            accu_2 <= accu_2 +
+                                      resize( 
+                                            shift_right(
+                                                       signal_in_shft_reg_latch_off * 
+                                                       tap_array_2_latch, 
+                                                       DATA_WIDTH -1
+                                            ),
+                                            accu_2'length
+                                    );
+                        end if;
+                        accu_state <= LATCHING_S;
+                end case;
             end if;
         end if;
     end process;
@@ -215,7 +252,8 @@ begin
             if reset = '1' then
                 out_valid <= '0';
             else
-                if mux_cnt = to_unsigned(MUX_CNT_MAX, mux_cnt'length) 
+                if last_pair = '1'
+                   and accu_state = ACCU_S
                    and calculating_bool = '1' then
                    out_valid <= '1';
                 else
