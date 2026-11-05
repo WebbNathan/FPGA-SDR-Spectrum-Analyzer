@@ -42,75 +42,59 @@ entity ram is
 end ram;
 
 architecture rtl of ram is
-    type mem_t is array (0 to WORD_CNT-1)
-        of std_logic_vector(WORD_SIZE-1 downto 0);
+    type mem_t is array (0 to WORD_CNT - 1)
+        of std_logic_vector(WORD_SIZE - 1 downto 0);
 
-    impure function init_ram(filename : string) return mem_t is
-        file input_file : text open read_mode is filename;
-        variable row    : line;
-        variable memory : mem_t := (others => (others => '0'));
-        variable idx    : natural := 0;
-    begin
-        while not endfile(input_file) and idx < WORD_CNT loop
-            readline(input_file, row);
-            hread(row, memory(idx));
-            idx := idx + 1;
-        end loop;
+    shared variable mem : mem_t := (others => (others => '0'));
 
-        return memory;
-    end function;
-
-    --signal mem : mem_t := init_ram("pkg/fft_input.hex");
-    signal mem : mem_t := (others => (others => '0'));
+    signal port0_en : std_logic;
+    signal port1_en : std_logic;
+    signal port0_we : std_logic;
 begin
+    port0_we <= write_en;
 
-    process(clk) 
+    port0_en <= (read_en or port0_we) and not reset;
+    port1_en <= (read_en or write_en) and not one_input and not reset;
+
+    -- Port 0
+    process(clk)
     begin
         if rising_edge(clk) then
-            if reset = '1' then
-                --mem <= (others => (others => '0'));
-            else
-                if write_en = '1' then
-                    mem(to_integer(unsigned(addr_0))) <= in_0;
-                    if one_input = '0' then
-                        mem(to_integer(unsigned(addr_1))) <= in_1;
-                    end if;
-                    write_done                        <= '1';
-                else
-                    write_done <= '0';
-                end if;
-
-                if read_en = '1' then
-                    out_0     <= mem(to_integer(unsigned(addr_0)));
-                    if one_input = '0' then
-                        out_1     <= mem(to_integer(unsigned(addr_1)));
-                    end if;
-                    read_done <= '1';
-                else
-                    read_done <= '0';
+            if port0_en = '1' then
+                out_0 <= mem(to_integer(unsigned(addr_0)));
+                if port0_we = '1' then
+                    mem(to_integer(unsigned(addr_0))) := in_0;
                 end if;
             end if;
         end if;
     end process;
 
-    dump_proc : process
-        file output_file : text open write_mode is "sim/fft_output.hex";
-        variable row : line;
+    -- Port 1
+    process(clk)
     begin
-        wait for 2 ms;  -- After the FFT finishes.
-        wait until falling_edge(clk);
-
-        if dump_out = '1' then
-            for idx in mem'range loop
-                hwrite(row, mem(idx));
-                writeline(output_file, row);
-            end loop;
-
-            file_close(output_file);
-            report "RAM dumped to fft_output.hex";
-            wait;
+        if rising_edge(clk) then
+            if port1_en = '1' then
+                out_1 <= mem(to_integer(unsigned(addr_1)));
+                if write_en = '1' then
+                    mem(to_integer(unsigned(addr_1))) := in_1;
+                end if;
+            end if;
         end if;
     end process;
-    -- synthesis translate_on
 
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if reset = '0' then
+                read_done  <= read_en;
+                write_done <= write_en;
+
+                -- synthesis translate_off
+                assert not (read_en = '1' and write_en = '1')
+                    report "FFT RAM received a read and a write on the same edge"
+                    severity failure;
+                -- synthesis translate_on
+            end if;
+        end if;
+    end process;
 end architecture;
