@@ -11,7 +11,7 @@ entity spectrum_analyzer_tb is
 end entity spectrum_analyzer_tb;
 
 architecture sim of spectrum_analyzer_tb is
-    constant CLK_PERIOD   : time    := 8 ns; -- 125MHz  
+    constant CLK_PERIOD   : time    := 10 ns; -- 100MHz  
     constant DATA_WIDTH   : integer := 16;
     constant DECIM_RATE   : integer := 1;
 
