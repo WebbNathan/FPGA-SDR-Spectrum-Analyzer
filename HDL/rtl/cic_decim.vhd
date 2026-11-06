@@ -62,19 +62,24 @@ begin
                     out_valid_pipeline_reg(i + N) <= '0';
                 else
                     if i = 0 then
-                        int_pipeline_reg(i)           <= resize(signed(signal_in), int_pipeline_reg(i)'length) + int_pipeline_reg(i);
-                        out_valid_pipeline_reg(i)     <= in_valid;
+                        if in_valid = '1' then
+                            int_pipeline_reg(i) <= resize(signed(signal_in), int_pipeline_reg(i)'length) + int_pipeline_reg(i);
+                        end if;
+                        
+                        out_valid_pipeline_reg(i) <= in_valid;
 
-                        if slow_clk = '1' then
+                        if slow_clk = '1' and out_valid_pipeline_reg(N -1) = '1' then
                             comb_pipeline_reg(i)          <= int_pipeline_reg(N -1) - comb_prev_in_pipeline_reg(i);
                             comb_prev_in_pipeline_reg(i)  <= int_pipeline_reg(N -1);
                             out_valid_pipeline_reg(i + N) <= out_valid_pipeline_reg(i + N -1);
                         end if;
                     elsif i = (N-1) then
-                        int_pipeline_reg(i)       <= int_pipeline_reg(i -1) + int_pipeline_reg(i);
+                        if out_valid_pipeline_reg(i -1) = '1' then
+                            int_pipeline_reg(i) <= int_pipeline_reg(i -1) + int_pipeline_reg(i);
+                        end if;
                         out_valid_pipeline_reg(i) <= out_valid_pipeline_reg(i -1);
 
-                        if slow_clk = '1' then
+                        if slow_clk = '1' and out_valid_pipeline_reg(N -1 + i) = '1' then
                             comb_pipeline_reg(i)          <= comb_pipeline_reg(i -1) - comb_prev_in_pipeline_reg(i);
                             comb_prev_in_pipeline_reg(i)  <= comb_pipeline_reg(i -1);
                         end if;
@@ -94,19 +99,20 @@ begin
         end process;
     end generate gen_modules;
 
-    -- Generate Slow Clock
+    slow_clk <= '1' when reset = '0'
+                         and out_valid_pipeline_reg(N - 1) = '1'
+                         and clk_slow_cnt_reg = unsigned(decim_factor) - 1
+                else '0';
+    
     process(clk)
     begin
         if rising_edge(clk) then
             if reset = '1' then
-                clk_slow_cnt_reg <= to_unsigned(0, clk_slow_cnt_reg'length);
-                slow_clk         <= '0';
-            else
-                if clk_slow_cnt_reg = (unsigned(decim_factor) -1) then
-                    slow_clk <= '1';
-                    clk_slow_cnt_reg <= to_unsigned(0, clk_slow_cnt_reg'length);
+                clk_slow_cnt_reg <= (others => '0');
+            elsif out_valid_pipeline_reg(N - 1) = '1' then
+                if slow_clk = '1' then
+                    clk_slow_cnt_reg <= (others => '0');
                 else
-                    slow_clk <= '0';
                     clk_slow_cnt_reg <= clk_slow_cnt_reg + 1;
                 end if;
             end if;

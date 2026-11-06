@@ -40,6 +40,8 @@ architecture rtl of spectrum_analyzer is
     constant CIC_N            : integer := 2;
     constant CIC_R_MAX        : integer := 64;
     constant CORDIC_STAGE     : integer := 15;
+    
+    signal adc_sample              : std_logic_vector(15 downto 0);
 
     -- FIR
     signal FIR_signal_out_real     : std_logic_vector(DATA_SIZE -1 downto 0);
@@ -173,7 +175,7 @@ begin
                 reset      => reset,
 
                 phase_incr => mixer_phase_incr,
-                signal_in  => signal_in,
+                signal_in  => adc_sample,
                 
                 I_val      => mixer_signal_out_real,
                 Q_val      => mixer_signal_out_imag,
@@ -183,5 +185,6 @@ begin
             );
 
         FIR_signal_out <= FIR_signal_out_real & FIR_signal_out_imag;
+        adc_sample <= (not signal_in(15)) & signal_in(14 downto 4) & "0000";
 
 end architecture;
